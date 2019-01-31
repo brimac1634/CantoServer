@@ -2,42 +2,31 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
+const knex = require('knex');
+
+const db = knex({
+  client: 'pg',
+  connection: {
+    host : '127.0.0.1',
+    user : 'brianmacpherson',
+    password : '',
+    database : 'cantotalk'
+  }
+});
 
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-const database = {
-	entries: [
-		{
-			entryID: 34,
-			cantoWord: '車',
-			jyutping: 'ce1',
-			classifier: '㗎',
-			englishWord: 'car',
-			mandarinWord: '车'
-		},
-		{
-			entryID: 67,
-			cantoWord: '蟲',
-			jyutping: 'cung1',
-			classifier: '',
-			englishWord: 'bug',
-			mandarinWord: '虫'
-		},
-		{
-			entryID: 69,
-			cantoWord: '頭',
-			jyutping: 'tau4',
-			classifier: '',
-			englishWord: 'head',
-			mandarinWord: '头'
-		}
-	]
-}
-
-app.get('/', (req, res) => {
-	res.send(database.entries)
+app.post('/', (req, res) => {
+	const { searchKey } = req.body;
+	return db.select('*').from('entries')
+		.where('englishword', 'LIKE', `%${searchKey}%`)
+		.then(entries => {
+			console.log(entries)
+			res.json(entries)
+		})
+		.catch(err => res.status(400).json('Unable to retrieve entries'))
 })
 
 app.post('/signin', (req, res) => {
@@ -54,7 +43,6 @@ app.get('/Favorites/:id', (req, res) => {
 })
 
 app.get('/WordOfTheDay', (req, res) => {
-	const {id} = req.params;
 
 })
 
