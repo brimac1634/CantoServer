@@ -76,7 +76,7 @@ app.post('/register', (req, res) => {
 	.catch(err => res.status(400).json('Unable to register'))
 })
 
-app.post('/Favorites/add', (req,res) => {
+app.post('/Favorites/toggle', (req,res) => {
 	const { userid, entryid, cantoword } = req.body;
 	db.select('*').from('favorites')
 		.where('userid', '=', userid)
