@@ -25,6 +25,7 @@ app.post('/', (req, res) => {
 		.orWhere('cantoword', 'LIKE', `%${searchKey}%`)
 		.orWhere('jyutping', 'LIKE', `%${searchKey}%`)
 		.orWhere('mandarinword', 'LIKE', `%${searchKey}%`)
+		.orderByRaw('CHAR_LENGTH(englishword)')
 		.then(entries => {
 			res.json(entries)
 		})
@@ -91,6 +92,7 @@ app.post('/Favorites/toggle', (req,res) => {
 				.then(data => res.json('deleted'))
 				.catch(err => res.status(400).json('Unable to remove favorite'))
 			} else {
+				console.log('fav not found')
 				return db('favorites')
 				.returning('*')
 				.insert({
@@ -103,11 +105,19 @@ app.post('/Favorites/toggle', (req,res) => {
 				.catch(err => res.status(400).json('Unable to save favorite'))
 			}
 		})
+		.catch(err => res.status(400).json(err))
 })
 
-app.get('/Favorites/:id', (req, res) => {
-	const {id} = req.params;
-
+app.post('/Favorites', (req, res) => {
+	const {id} = req.body;
+	db.select('*').from('entries')
+		.innerJoin('favorites', 'entries.entryID', 'favorites.entryid')
+		.where('favorites.userid', '=', id)
+		.orderBy('datefavorited')
+		.then(entries => {
+			res.json(entries)
+		})
+		.catch(err => res.status(400).json('Unable to retrieve favorites'))
 })
 
 app.get('/WordOfTheDay', (req, res) => {
