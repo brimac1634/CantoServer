@@ -113,7 +113,7 @@ app.post('/Favorites', (req, res) => {
 	db.select('*').from('entries')
 		.innerJoin('favorites', 'entries.entryID', 'favorites.entryid')
 		.where('favorites.userid', '=', id)
-		.orderBy('datefavorited')
+		.orderBy('datefavorited', 'desc')
 		.then(entries => {
 			res.json(entries)
 		})
