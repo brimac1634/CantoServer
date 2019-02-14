@@ -4,6 +4,8 @@ const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
 const knex = require('knex');
 
+const favorites = require('./controllers/favorites');
+
 const db = knex({
   client: 'pg',
   connection: {
@@ -77,36 +79,7 @@ app.post('/register', (req, res) => {
 	.catch(err => res.status(400).json('Unable to register'))
 })
 
-app.post('/Favorites/toggle', (req,res) => {
-	const { userid, entryid, cantoword } = req.body;
-	db.select('*').from('favorites')
-		.where('userid', '=', userid)
-		.andWhere('entryid', '=', entryid)
-		.then(data => {
-			if (data.length) {
-				return db('favorites')
-				.returning('*')
-				.where('userid', '=', userid)
-				.andWhere('entryid', '=', entryid)
-				.del()
-				.then(data => res.json('deleted'))
-				.catch(err => res.status(400).json('Unable to remove favorite'))
-			} else {
-				console.log('fav not found')
-				return db('favorites')
-				.returning('*')
-				.insert({
-					userid: userid,
-					entryid: entryid,
-					cantoword: cantoword,
-					datefavorited: new Date()
-				})
-				.then(favorite => res.json(favorite[0]))
-				.catch(err => res.status(400).json('Unable to save favorite'))
-			}
-		})
-		.catch(err => res.status(400).json(err))
-})
+app.post('/favorites/toggle', (req, res) => { favorites.toggleFavorite(req, res, db)})
 
 app.post('/Favorites', (req, res) => {
 	const {id} = req.body;
