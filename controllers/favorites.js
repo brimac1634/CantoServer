@@ -29,6 +29,19 @@ const toggleFavorite = (req, res, db) => {
 		.catch(err => res.status(400).json(err))
 }
 
+const getFavorites = (req, res, db) => {
+	const {id} = req.body;
+	db.select('*').from('entries')
+		.innerJoin('favorites', 'entries.entryID', 'favorites.entryid')
+		.where('favorites.userid', '=', id)
+		.orderBy('datefavorited', 'desc')
+		.then(entries => {
+			res.json(entries)
+		})
+		.catch(err => res.status(400).json('Unable to retrieve favorites'))
+}
+
 module.exports = {
-	toggleFavorite
+	toggleFavorite,
+	getFavorites
 }
