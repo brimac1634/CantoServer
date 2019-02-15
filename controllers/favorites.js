@@ -13,7 +13,6 @@ const toggleFavorite = (req, res, db) => {
 				.then(data => res.json('deleted'))
 				.catch(err => res.status(400).json('Unable to remove favorite'))
 			} else {
-				console.log('fav not found')
 				return db('favorites')
 				.returning('*')
 				.insert({
@@ -27,6 +26,21 @@ const toggleFavorite = (req, res, db) => {
 			}
 		})
 		.catch(err => res.status(400).json(err))
+}
+
+const checkIfFavorited = (req, res, db) => {
+	const { userID, entryID } = req.body;
+	db.select('favoriteid').from('favorites')
+		.where('entryid', '=', entryID)
+		.andWhere('userid', '=', userID)
+		.then(data => {
+			if (data.length) {
+				res.json(true);
+			} else {
+				res.json(false)
+			}
+		})
+		.catch(err => res.status(400).json('Unable to check if favorite'))
 }
 
 const getFavorites = (req, res, db) => {
@@ -43,5 +57,6 @@ const getFavorites = (req, res, db) => {
 
 module.exports = {
 	toggleFavorite,
+	checkIfFavorited,
 	getFavorites
 }

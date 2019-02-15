@@ -41,6 +41,8 @@ app.post('/register', (req, res) => { login.handleRegister(req, res, db, bcrypt)
 
 app.post('/Favorites/toggle', (req, res) => { favorites.toggleFavorite(req, res, db) })
 
+app.post('/Favorites/isFavorited', (req, res) => { favorites.checkIfFavorited(req, res, db)})
+
 app.post('/Favorites', (req, res) => { favorites.getFavorites(req, res, db) })
 
 app.get('/WordOfTheDay', (req, res) => {
