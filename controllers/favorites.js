@@ -10,7 +10,7 @@ const toggleFavorite = (req, res, db) => {
 				.where('userid', '=', userid)
 				.andWhere('entryid', '=', entryid)
 				.del()
-				.then(data => res.json('deleted'))
+				.then(data => res.json(false))
 				.catch(err => res.status(400).json('Unable to remove favorite'))
 			} else {
 				return db('favorites')
@@ -21,7 +21,7 @@ const toggleFavorite = (req, res, db) => {
 					cantoword: cantoword,
 					datefavorited: new Date()
 				})
-				.then(favorite => res.json(favorite[0]))
+				.then(favorite => res.json(true))
 				.catch(err => res.status(400).json('Unable to save favorite'))
 			}
 		})
