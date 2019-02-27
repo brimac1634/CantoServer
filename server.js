@@ -23,11 +23,12 @@ app.use(cors());
 
 app.post('/', (req, res) => {
 	const { searchKey } = req.body;
+	const key = searchKey.toLowerCase();
 	return db.select('*').from('entries')
-		.where('englishword', 'LIKE', `%${searchKey}%`)		
-		.orWhere('cantoword', 'LIKE', `%${searchKey}%`)
-		.orWhere('jyutping', 'LIKE', `%${searchKey}%`)
-		.orWhere('mandarinword', 'LIKE', `%${searchKey}%`)
+		.whereRaw('LOWER(englishword) LIKE ?', `%${key}%`)		
+		.orWhere('cantoword', 'LIKE', `%${key}%`)
+		.orWhereRaw('LOWER(jyutping) LIKE ?', `%${key}%`)
+		.orWhere('mandarinword', 'LIKE', `%${key}%`)
 		.orderByRaw('CHAR_LENGTH(englishword)')
 		.then(entries => {
 			res.json(entries)
@@ -54,13 +55,6 @@ app.get('/Learn', (req, res) => {
 
 })
 
-
-/*
-/ -> this is working/ db
-/signin -> post success/fail
-/register -> post user
-/Favorites -> get favorites db
-*/
 
 app.listen(3000, () => {
 	console.log('app is running on port 3000');
