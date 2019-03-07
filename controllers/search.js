@@ -28,6 +28,14 @@ const addRecent = (req, res, db) => {
 
 const getRecent = (req, res, db) => {
 	const { userID } = req.body;
+	db.select('*').from('entries')
+		.innerJoin('recent', 'entries.entryID', 'recent.entry_id')
+		.where('recent.user_id', '=', userID)
+		.orderBy('date_viewed', 'desc')
+		.then(entries => {
+			res.json(entries);
+		})
+		.catch(err => res.status(400).json('Unable to retrieve recently viewed'))
 
 }
 
