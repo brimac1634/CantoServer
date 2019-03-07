@@ -6,6 +6,7 @@ const knex = require('knex');
 
 const favorites = require('./controllers/favorites');
 const login = require('./controllers/login');
+const search = require('./controllers/search');
 
 const db = knex({
   client: 'pg',
@@ -21,20 +22,11 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-app.post('/', (req, res) => {
-	const { searchKey } = req.body;
-	const key = searchKey.toLowerCase();
-	return db.select('*').from('entries')
-		.whereRaw('LOWER(englishword) LIKE ?', `%${key}%`)		
-		.orWhere('cantoword', 'LIKE', `%${key}%`)
-		.orWhereRaw('LOWER(jyutping) LIKE ?', `%${key}%`)
-		.orWhere('mandarinword', 'LIKE', `%${key}%`)
-		.orderByRaw('CHAR_LENGTH(englishword)')
-		.then(entries => {
-			res.json(entries)
-		})
-		.catch(err => res.status(400).json('Unable to retrieve entries'))
-})
+app.post('/', (req, res) => { search.handleSearch(req, res, db) })
+
+app.post('/recent/add', (req, res) => { search.addRecent(req, res, db) })
+
+app.post('/recent', (req, res) => { search.getRecent(req, res, db) })
 
 app.post('/signin', (req, res) => { login.handleSignIn(req, res, db, bcrypt) })
 
