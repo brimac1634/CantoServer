@@ -15,14 +15,32 @@ const handleSearch = (req, res, db) => {
 
 const addRecent = (req, res, db) => {
 	const { userID, entryID } = req.body;
-	db('recent')
-		.returning('*')
-		.insert({
-			user_id: userID,
-			entry_id: entryID,
-			date_viewed: new Date()
+	db.select('*').from('recent')
+		.where('user_id', '=', userID)
+		.andWhere('entry_id', '=', entryID)
+		.then(recent => {
+			if (recent.length) {
+				return db('recent')
+				.returning('*')
+				.where('user_id', '=', userID)
+				.andWhere('entry_id', '=', entryID)
+				.update({
+					date_viewed: new Date()
+				})
+				.then(recent => res.json(recent[0]))
+				.catch(err => res.status(400).json('Unable to update recently viewed.'))
+			} else {
+				return db('recent')
+				.returning('*')
+				.insert({
+					user_id: userID,
+					entry_id: entryID,
+					date_viewed: new Date()
+				})
+				.then(recent => res.json(recent[0]))
+				.catch(err => res.status(400).json('Unable to add to recently viewed.'))
+			}
 		})
-		.then(recent => res.json(recent[0]))
 		.catch(err => res.status(400).json('Unable to add to recently viewed.'))
 }
 
