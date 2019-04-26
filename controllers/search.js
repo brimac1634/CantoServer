@@ -13,6 +13,16 @@ const handleSearch = (req, res, db) => {
 		.catch(err => res.status(400).json('Unable to retrieve entries'))
 }
 
+const handleEntryID = (req, res, db) => {
+	const { entryID } = req.body;
+	return db.select('*').from('entries')
+		.where('entryID', '=', entryID)
+		.then(entry => {
+			res.json(entry[0])
+		})
+		.catch(err => res.status(400).json('Unable to retrieve entry'))
+}
+
 const addRecent = (req, res, db) => {
 	const { userID, entryID } = req.body;
 	db.select('*').from('recent')
@@ -59,6 +69,7 @@ const getRecent = (req, res, db) => {
 
 module.exports = {
 	handleSearch,
+	handleEntryID,
 	addRecent,
 	getRecent
 }
