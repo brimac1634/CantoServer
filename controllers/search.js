@@ -1,4 +1,4 @@
-const { DatabaseError } = require('../errorCodes')
+const { ServerError } = require('../errorCodes')
 
 const handleSearch = (req, res, db) => {
 	const { searchKey } = req.body;
