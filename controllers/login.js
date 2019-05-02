@@ -28,7 +28,7 @@ const handleSignIn = (req, res, db, bcrypt) => {
 						.then(user => {
 							res.json(user[0])
 						})
-						.catch(res.status(400).json(new DatabaseError()))
+						.catch(err => res.status(400).json(new ServerError()))
 				} else {
 					throw new ValidationError('wrong credentials')
 				}
@@ -37,7 +37,7 @@ const handleSignIn = (req, res, db, bcrypt) => {
 			}
 		})
 		.catch(err => {
-			const error = err.isCustom ? err : new DatabaseError()
+			const error = err.isCustom ? err : new ServerError()
 			res.status(400).json(error)
 		})
 }
@@ -69,7 +69,7 @@ const handleRegister = (req, res, db, bcrypt) => {
 		.then(trx.commit)
 		.catch(trx.rollback)
 	})
-	.catch(err => res.status(400).json('Unable to register'))
+	.catch(err => res.status(400).json(new ServerError()))
 }
 
 module.exports = {

@@ -1,3 +1,5 @@
+const { DatabaseError } = require('../errorCodes')
+
 const handleSearch = (req, res, db) => {
 	const { searchKey } = req.body;
 	const key = searchKey.toLowerCase();
@@ -10,7 +12,7 @@ const handleSearch = (req, res, db) => {
 		.then(entries => {
 			res.json(entries)
 		})
-		.catch(err => res.status(400).json('Unable to retrieve entries'))
+		.catch(err => res.status(400).json(new ServerError()))
 }
 
 const handleEntryID = (req, res, db) => {
@@ -20,7 +22,7 @@ const handleEntryID = (req, res, db) => {
 		.then(entry => {
 			res.json(entry[0])
 		})
-		.catch(err => res.status(400).json('Unable to retrieve entry'))
+		.catch(err => res.status(400).json(new ServerError()))
 }
 
 const addRecent = (req, res, db) => {
@@ -38,7 +40,7 @@ const addRecent = (req, res, db) => {
 					date_viewed: new Date()
 				})
 				.then(recent => res.json(recent[0]))
-				.catch(err => res.status(400).json('Unable to update recently viewed.'))
+				.catch(err => res.status(400).json(new ServerError()))
 			} else {
 				return db('recent')
 				.returning('*')
@@ -48,10 +50,10 @@ const addRecent = (req, res, db) => {
 					date_viewed: new Date()
 				})
 				.then(recent => res.json(recent[0]))
-				.catch(err => res.status(400).json('Unable to add to recently viewed.'))
+				.catch(err => res.status(400).json(new ServerError()))
 			}
 		})
-		.catch(err => res.status(400).json('Unable to add to recently viewed.'))
+		.catch(err => res.status(400).json(new ServerError()))
 }
 
 const getRecent = (req, res, db) => {
@@ -63,7 +65,7 @@ const getRecent = (req, res, db) => {
 		.then(entries => {
 			res.json(entries);
 		})
-		.catch(err => res.status(400).json('Unable to retrieve recently viewed'))
+		.catch(err => res.status(400).json(new ServerError()))
 
 }
 

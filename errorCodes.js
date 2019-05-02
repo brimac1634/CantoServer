@@ -22,15 +22,15 @@ class ValidationError extends CustomError {
     this.toJSON()
   }
 }
-class DatabaseError extends CustomError {
-  constructor(message = 'There was an error with the database') {
+class ServerError extends CustomError {
+  constructor(message = 'There was an error with the server') {
     super(message)
-    this.name = 'DatabaseError'
+    this.name = 'ServerError'
     this.message = message
     this.toJSON()
   }
 }
 module.exports = {
   ValidationError,
-  DatabaseError
+  ServerError
 }
