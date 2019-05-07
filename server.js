@@ -28,7 +28,7 @@ app.post('/entryid', (req, res) => { search.handleEntryID(req, res, db) })
 
 app.post('/recent/add', (req, res) => { search.addRecent(req, res, db) })
 
-app.post('/recent', (req, res) => { search.getRecent(req, res, db) })
+app.post('/search/recent', (req, res) => { search.getRecent(req, res, db) })
 
 app.post('/signin', (req, res) => { login.handleSignIn(req, res, db, bcrypt) })
 
@@ -38,7 +38,7 @@ app.post('/favorites/toggle', (req, res) => { favorites.toggleFavorite(req, res,
 
 app.post('/favorites/isFavorited', (req, res) => { favorites.checkIfFavorited(req, res, db)})
 
-app.post('/favorites', (req, res) => { favorites.getFavorites(req, res, db) })
+app.post('/search/favorites', (req, res) => { favorites.getFavorites(req, res, db) })
 
 app.get('/wordOfTheDay', (req, res) => {
 

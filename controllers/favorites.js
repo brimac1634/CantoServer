@@ -46,10 +46,10 @@ const checkIfFavorited = (req, res, db) => {
 }
 
 const getFavorites = (req, res, db) => {
-	const {id} = req.body;
+	const {userID} = req.body;
 	db.select('*').from('entries')
 		.innerJoin('favorites', 'entries.entryID', 'favorites.entryid')
-		.where('favorites.userid', '=', id)
+		.where('favorites.userid', '=', userID)
 		.orderBy('datefavorited', 'desc')
 		.then(entries => {
 			res.json(entries)
