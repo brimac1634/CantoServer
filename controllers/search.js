@@ -59,8 +59,8 @@ const addRecent = (req, res, db) => {
 const getRecent = (req, res, db) => {
 	const { userID } = req.body;
 	db.select('*').from('entries')
-		.innerJoin('recent', 'entries.entry_id', 'recent.entry_id')
-		.where('recent.user_id', '=', userID)
+		.innerJoin('recents', 'entries.entry_id', 'recents.entry_id')
+		.where('recents.user_id', '=', userID)
 		.orderBy('date_viewed', 'desc')
 		.then(entries => {
 			res.json(entries);
