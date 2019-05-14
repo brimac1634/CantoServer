@@ -40,8 +40,19 @@ class ServerError extends CustomError {
     this.toJSON()
   }
 }
+
+class EmailError extends CustomError {
+  constructor(message = 'There was an error with completing the email request') {
+    super(message)
+    this.name = 'EmailError'
+    this.message = message
+    this.toJSON()
+  }
+}
+
 module.exports = {
   ValidationError,
   EmailTakenError,
-  ServerError
+  ServerError,
+  EmailError
 }

@@ -1,7 +1,7 @@
 const api_key = process.env.MG_API_KEY;
 const DOMAIN = process.env.MG_DOMAIN;
 const mailgun = require('mailgun-js')({apiKey: api_key, domain: DOMAIN});
-const { ServerError } = require('../errorCodes')
+const { ServerError, EmailError } = require('../errorCodes')
 const { validateEmail } = require('../utils');
 
 const handleContact = (req, res, db) => {
@@ -15,20 +15,21 @@ const handleContact = (req, res, db) => {
 		};
 
 		mailgun.messages().send(data, (error, body) => {
-		  console.log(body);
+		  if (error) {
+		  	res.status(400).json(new EmailError())
+		  } else if (body) {
+		  	db('messages')
+				.returning('*')
+				.insert({
+					name: name,
+					email: email,
+					date_sent: new Date()
+				})
+				.then(message => res.json(message))
+				.catch(() => res.status(400).json(new ServerError()))
+		  }
 		});
 	}
-	
-	// db('favorites')
-	// 	.returning('*')
-	// 	.insert({
-	// 		user_id: userID,
-	// 		entry_id: entryID,
-	// 		canto_word: cantoWord,
-	// 		date_favorited: new Date()
-	// 	})
-	// 	.then(favorite => res.json(true))
-	// 	.catch(() => res.status(400).json(new ServerError()))
 }
 
 
