@@ -4,11 +4,11 @@ const handleSearch = (req, res, db) => {
 	const { searchKey } = req.body;
 	const key = searchKey.toLowerCase();
 	return db.select('*').from('entries')
-		.whereRaw('LOWER(englishword) LIKE ?', `%${key}%`)		
-		.orWhere('cantoword', 'LIKE', `%${key}%`)
+		.whereRaw('LOWER(english_word) LIKE ?', `%${key}%`)		
+		.orWhere('canto_word', 'LIKE', `%${key}%`)
 		.orWhereRaw('LOWER(jyutping) LIKE ?', `%${key}%`)
-		.orWhere('mandarinword', 'LIKE', `%${key}%`)
-		.orderByRaw('CHAR_LENGTH(englishword)')
+		.orWhere('mandarin_word', 'LIKE', `%${key}%`)
+		.orderByRaw('CHAR_LENGTH(english_word)')
 		.then(entries => {
 			res.json(entries)
 		})
@@ -18,7 +18,7 @@ const handleSearch = (req, res, db) => {
 const handleEntryID = (req, res, db) => {
 	const { entryID } = req.body;
 	return db.select('*').from('entries')
-		.where('entryID', '=', entryID)
+		.where('entry_id', '=', entryID)
 		.then(entry => {
 			res.json(entry[0])
 		})
@@ -59,7 +59,7 @@ const addRecent = (req, res, db) => {
 const getRecent = (req, res, db) => {
 	const { userID } = req.body;
 	db.select('*').from('entries')
-		.innerJoin('recent', 'entries.entryID', 'recent.entry_id')
+		.innerJoin('recent', 'entries.entry_id', 'recent.entry_id')
 		.where('recent.user_id', '=', userID)
 		.orderBy('date_viewed', 'desc')
 		.then(entries => {

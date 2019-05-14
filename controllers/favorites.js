@@ -3,14 +3,14 @@ const { ServerError } = require('../errorCodes')
 const toggleFavorite = (req, res, db) => {
 	const { userID, entryID, cantoWord } = req.body;
 	db.select('*').from('favorites')
-		.where('userid', '=', userID)
-		.andWhere('entryid', '=', entryID)
+		.where('user_id', '=', userID)
+		.andWhere('entry_id', '=', entryID)
 		.then(data => {
 			if (data.length) {
 				return db('favorites')
 				.returning('*')
-				.where('userid', '=', userID)
-				.andWhere('entryid', '=', entryID)
+				.where('user_id', '=', userID)
+				.andWhere('entry_id', '=', entryID)
 				.del()
 				.then(data => res.json(false))
 				.catch(() => res.status(400).json(new ServerError()))
@@ -18,10 +18,10 @@ const toggleFavorite = (req, res, db) => {
 				return db('favorites')
 				.returning('*')
 				.insert({
-					userid: userID,
-					entryid: entryID,
-					cantoword: cantoWord,
-					datefavorited: new Date()
+					user_id: userID,
+					entry_id: entryID,
+					canto_word: cantoWord,
+					date_favorited: new Date()
 				})
 				.then(favorite => res.json(true))
 				.catch(() => res.status(400).json(new ServerError()))
@@ -32,9 +32,9 @@ const toggleFavorite = (req, res, db) => {
 
 const checkIfFavorited = (req, res, db) => {
 	const { userID, entryID } = req.body;
-	db.select('favoriteid').from('favorites')
-		.where('entryid', '=', entryID)
-		.andWhere('userid', '=', userID)
+	db.select('favorite_id').from('favorites')
+		.where('entry_id', '=', entryID)
+		.andWhere('user_id', '=', userID)
 		.then(data => {
 			if (data.length) {
 				res.json(true);
@@ -48,9 +48,9 @@ const checkIfFavorited = (req, res, db) => {
 const getFavorites = (req, res, db) => {
 	const {userID} = req.body;
 	db.select('*').from('entries')
-		.innerJoin('favorites', 'entries.entryID', 'favorites.entryid')
-		.where('favorites.userid', '=', userID)
-		.orderBy('datefavorited', 'desc')
+		.innerJoin('favorites', 'entries.entry_id', 'favorites.entry_id')
+		.where('favorites.user_id', '=', userID)
+		.orderBy('date_favorited', 'desc')
 		.then(entries => {
 			res.json(entries)
 		})
