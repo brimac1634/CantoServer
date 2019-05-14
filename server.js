@@ -3,14 +3,12 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
 const knex = require('knex');
-var mailgun = require('mailgun-js')
-var api_key = process.env.MG_API_KEY;
-var DOMAIN = 'mg.cantotalk.com';
-var mailgun = require('mailgun-js')({apiKey: api_key, domain: DOMAIN});
+
 
 const favorites = require('./controllers/favorites');
 const login = require('./controllers/login');
 const search = require('./controllers/search');
+const contact = require('./controllers/contact');
 
 const db = knex({
   client: 'pg',
@@ -23,6 +21,8 @@ const db = knex({
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
+
+app.post('/contact-us', (req, res) => { contact.handleContact(req, res, db) })
 
 app.post('/search', (req, res) => { search.handleSearch(req, res, db) })
 
@@ -49,16 +49,6 @@ app.get('/wordOfTheDay', (req, res) => {
 app.get('/learn', (req, res) => {
 	const {id} = req.params;
 })
-
-const data = {
-	from: 'info@cantotalk.com',
-	to: 'brimac1634@gmail.com',
-	subject: 'Hello',
-	text: 'Testing some Mailgun awesomness!'
-};
-mailgun.messages().send(data, function (error, body) {
-	console.log(body);
-});
 
 
 app.listen(process.env.PORT || 3000, () => {
