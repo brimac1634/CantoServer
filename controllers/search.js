@@ -27,12 +27,12 @@ const handleEntryID = (req, res, db) => {
 
 const addRecent = (req, res, db) => {
 	const { userID, entryID } = req.body;
-	db.select('*').from('recent')
+	db.select('*').from('recents')
 		.where('user_id', '=', userID)
 		.andWhere('entry_id', '=', entryID)
 		.then(recent => {
 			if (recent.length) {
-				return db('recent')
+				return db('recents')
 				.returning('*')
 				.where('user_id', '=', userID)
 				.andWhere('entry_id', '=', entryID)
@@ -42,7 +42,7 @@ const addRecent = (req, res, db) => {
 				.then(recent => res.json(recent[0]))
 				.catch(err => res.status(400).json(new ServerError()))
 			} else {
-				return db('recent')
+				return db('recents')
 				.returning('*')
 				.insert({
 					user_id: userID,
