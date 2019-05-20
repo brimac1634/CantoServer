@@ -9,8 +9,8 @@ const handleContact = (req, res, db) => {
 	if (validateEmail(email) && name && message) {
 		const data = {
 		  from: `${name} <${email}>`,
-		  to: 'info@cantotalk.com, brimac1634@gmail.com',
-		  subject: 'CantoTalk Contact Us',
+		  to: 'info@cantotalk.com',
+		  subject: 'CantoTalk - Contact Us',
 		  text: `${message}`
 		};
 

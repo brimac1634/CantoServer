@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
 const knex = require('knex');
-
+require('dotenv').config();
 
 const favorites = require('./controllers/favorites');
 const login = require('./controllers/login');
