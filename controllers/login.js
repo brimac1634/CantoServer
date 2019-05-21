@@ -122,7 +122,21 @@ const completeRegistration = (req, res, db, bcrypt) => {
 				if (now > user.token_expires) {
 					throw new PasswordTokenExpired()
 				} else {
-					
+					const hash = bcrypt.hashSync(password);
+					return db('login')
+					.returning('*')
+					.where('email', '=', user.email)
+					.update({
+						hash: hash
+					})
+					.then(loginUser => {
+						if (loginUser[0]){
+							res.json(`${loginUser[0]} has been verified`))
+						} else {
+							throw new UserNotFound()
+						}
+					}
+					.catch(err => res.status(400).json(new ServerError()))
 				}
 			} else {
 				throw new UserNotFound()
