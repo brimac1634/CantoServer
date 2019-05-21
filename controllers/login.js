@@ -29,11 +29,11 @@ const handleSignIn = (req, res, db, bcrypt) => {
 					throw new ValidationError('wrong credentials')
 				}
 			} else {
-				throw new ValidationError('wrong credentials')
+				throw new EmailNotRegistered()
 			}
 		})
 		.catch(err => {
-			const error = err.isCustom ? err : new EmailNotRegistered()
+			const error = err.isCustom ? err : new ServerError()
 			res.status(400).json(error)
 		})
 }
