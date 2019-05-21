@@ -96,7 +96,7 @@ const handleRegister = (req, res, db) => {
 							    }
 							});
 						})
-						.catch(() => res.status(400).json(new ServerError()))
+						.catch(() => res.status(400).json(new ServerError(), 'middle'))
 					})
 				})
 				.then(trx.commit)
@@ -105,7 +105,7 @@ const handleRegister = (req, res, db) => {
 		})
 		.catch(err => {
 			const error = err.isCustom ? err : new ServerError()
-			res.status(400).json(error)
+			res.status(400).json(error, 'bottom')
 		})
 	
 }

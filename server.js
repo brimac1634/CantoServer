@@ -10,13 +10,18 @@ const login = require('./controllers/login');
 const search = require('./controllers/search');
 const contact = require('./controllers/contact');
 
-const db = knex({
-  client: 'pg',
-  connection: {
-    connectionString: process.env.DATABASE_URL,
-    ssl: true,
-  }
-});
+if (process.env.PORT === 3000) {
+	
+} else {
+	const db = knex({
+	  client: 'pg',
+	  connection: {
+	    connectionString: process.env.DATABASE_URL,
+	    ssl: true,
+	  }
+	});
+}
+
 
 const app = express();
 app.use(bodyParser.json());
