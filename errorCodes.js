@@ -79,8 +79,8 @@ class PasswordTokenExpired extends CustomError {
 
 module.exports = {
   ValidationError,
-  UserNotFound,,
-  PasswordTokenExpired
+  UserNotFound,
+  PasswordTokenExpired,
   EmailNotRegistered,
   EmailTakenError,
   ServerError,

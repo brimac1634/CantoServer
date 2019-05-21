@@ -17,7 +17,8 @@ const validatePassword = (password) => {
 
 
 const handleSignIn = (req, res, db, bcrypt) => {
-	const { email, password } = req.body;
+	let { email, password } = req.body;
+	email.toLowerCase()
 	const emailIsValid = validateEmail(email);
 	const passwordIsValid = validatePassword(password);
 	if (!emailIsValid || !passwordIsValid) {
@@ -48,8 +49,9 @@ const handleSignIn = (req, res, db, bcrypt) => {
 		})
 }
 
-const handleRegister = (req, res, db, bcrypt) => {
-	const { email } = req.body;
+const handleRegister = (req, res, db) => {
+	let { email } = req.body;
+	email.toLowerCase()
 	const emailIsValid = validateEmail(email);
 	if (!emailIsValid) {
 		return res.status(400).json(new ValidationError('wrong credentials'))
@@ -95,6 +97,7 @@ const handleRegister = (req, res, db, bcrypt) => {
 							});
 						})
 						.catch(() => res.status(400).json(new ServerError()))
+					})
 				})
 				.then(trx.commit)
 				.catch(trx.rollback)
@@ -131,11 +134,11 @@ const completeRegistration = (req, res, db, bcrypt) => {
 					})
 					.then(loginUser => {
 						if (loginUser[0]){
-							res.json(`${loginUser[0]} has been verified`))
+							res.json(`${loginUser[0]} has been verified`)
 						} else {
 							throw new UserNotFound()
 						}
-					}
+					})
 					.catch(err => res.status(400).json(new ServerError()))
 				}
 			} else {
