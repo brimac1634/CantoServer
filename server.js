@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
 const knex = require('knex');
+const mc = require('mailcomposer');
 require('dotenv').config();
 
 const favorites = require('./controllers/favorites');
@@ -36,7 +37,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-app.post('/contact-us', (req, res) => { contact.handleContact(req, res, db) })
+app.post('/contact-us', (req, res) => { contact.handleContact(req, res, db, mc) })
 
 app.post('/search', (req, res) => { search.handleSearch(req, res, db) })
 
