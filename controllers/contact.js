@@ -2,7 +2,7 @@ const api_key = process.env.MG_API_KEY;
 const DOMAIN = process.env.MG_DOMAIN;
 const mailgun = require('mailgun-js')({apiKey: api_key, domain: DOMAIN});
 const { ServerError, EmailError } = require('../errorCodes')
-const { validateEmail } = require('../utils');
+const { validateEmail } = require('../helpers/utils');
 
 const handleContact = (req, res, db) => {
 	const { name, email, message } = req.body;

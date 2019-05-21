@@ -34,7 +34,9 @@ app.post('/search/recent', (req, res) => { search.getRecent(req, res, db) })
 
 app.post('/signin', (req, res) => { login.handleSignIn(req, res, db, bcrypt) })
 
-app.post('/register', (req, res) => { login.handleRegister(req, res, db, bcrypt) })
+app.post('/register', (req, res) => { login.handleRegister(req, res, db) })
+
+app.post('/register/complete', (req, res) => { login.completeRegistration(req, res, db, bcrypt) })
 
 app.post('/favorites/toggle', (req, res) => { favorites.toggleFavorite(req, res, db) })
 
