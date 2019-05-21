@@ -76,7 +76,7 @@ const handleRegister = (req, res, db, bcrypt) => {
 					    if (error) {
 					    	res.status(400).json(new EmailError())
 					    } else if (body) {
-					  		res.json('success'))
+					  		res.json('success')
 					    }
 					});
 				})
