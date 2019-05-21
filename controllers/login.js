@@ -3,7 +3,7 @@ const DOMAIN = process.env.MG_DOMAIN;
 const mailgun = require('mailgun-js')({apiKey: api_key, domain: DOMAIN});
 const { ServerError, ValidationError, EmailNotRegistered } = require('../errorCodes');
 const { validateEmail, generateToken } = require('../helpers/utils');
-const { DOMAIN } = require('../helpers/constants');
+const { URL } = require('../helpers/constants');
 
 const validatePassword = (password) => {
 	return password.length >= 6;
@@ -68,7 +68,7 @@ const handleRegister = (req, res, db, bcrypt) => {
 					    from: `no-reply@cantotalk.com`,
 					    to: email,
 					    subject: 'CantoTalk - Email Verification',
-					    text: `Please follow the link below to verify your email address: ${DOMAIN}/verify?token=${token}
+					    text: `Please follow the link below to verify your email address: ${URL}/verify?token=${token}
 					    . This link will remain valid for 6 hours.`
 					};
 

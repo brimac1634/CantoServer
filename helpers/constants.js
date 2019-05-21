@@ -1,5 +1,5 @@
-const DOMAIN = 'https://cantotalk.herokuapp.com'
+const URL = 'https://cantotalk.herokuapp.com'
 
 module.exports = {
-	DOMAIN
+	URL
 }
