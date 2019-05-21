@@ -79,14 +79,30 @@ const handleRegister = (req, res, db) => {
 							token: token,
 							token_expires: expires 
 						})
-						.then(user => console.log('user here', user))
+						.then(user => {
+							const data = {
+							    from: `no-reply@cantotalk.com`,
+							    to: email,
+							    subject: 'CantoTalk - Email Verification',
+							    text: `Please follow the link below to verify your email address: ${URL}/verify?token=${token}
+							    . This link will remain valid for 6 hours.`
+							};
+
+							mailgun.messages().send(data, (error, body) => {
+							    if (error) {
+							    	res.status(400).json(new EmailError())
+							    } else if (body) {
+							  		res.json('success')
+							    }
+							});
+						})
 						.catch(() => {
 							res.status(400).json(new ServerError())
 						})
 					})
+					.then(trx.commit)
+					.catch(trx.rollback)
 				})
-				.then(trx.commit)
-				.catch(trx.rollback)
 			}
 		})
 		.catch(err => {
@@ -96,23 +112,6 @@ const handleRegister = (req, res, db) => {
 		})
 	
 }
-
-// const data = {
-// 	    from: `no-reply@cantotalk.com`,
-// 	    to: email,
-// 	    subject: 'CantoTalk - Email Verification',
-// 	    text: `Please follow the link below to verify your email address: ${URL}/verify?token=${token}
-// 	    . This link will remain valid for 6 hours.`
-// 	};
-
-// 	mailgun.messages().send(data, (error, body) => {
-// 	    if (error) {
-// 	    	res.status(400).json(new EmailError())
-// 	    } else if (body) {
-// 	  		res.json('success')
-// 	    }
-// 	});
-// }
 
 const completeRegistration = (req, res, db, bcrypt) => {
 	const { password, token } = req.body;
@@ -130,20 +129,26 @@ const completeRegistration = (req, res, db, bcrypt) => {
 					throw new PasswordTokenExpired()
 				} else {
 					const hash = bcrypt.hashSync(password);
-					return db('login')
-					.returning('*')
-					.where('email', '=', user.email)
-					.update({
-						hash: hash
+					db.transaction(trx => {
+						trx.select('*').from('login')
+						.where('email', '=', user.email)
+						.update({hash: hash})
+						.returning('email')
+						.then(email => {
+							return trx.select('*').from('users')
+							.where('email', '=', email[0])
+							.update({token: ''})
+							.returning('*')
+							.then(user => {
+								res.json(`${loginUser[0].email} has been verified`)
+							})
+							.catch(() => {
+								res.status(400).json(new ServerError())
+							})
+						})
+						.then(trx.commit)
+						.catch(trx.rollback)
 					})
-					.then(loginUser => {
-						if (loginUser[0]){
-							res.json(`${loginUser[0]} has been verified`)
-						} else {
-							throw new UserNotFound()
-						}
-					})
-					.catch(err => res.status(400).json(new ServerError()))
 				}
 			} else {
 				throw new UserNotFound()
