@@ -23,6 +23,15 @@ class ValidationError extends CustomError {
   }
 }
 
+class UserNotFound extends CustomError {
+  constructor(message = 'The user could not be found.') {
+    super(message)
+    this.name = 'UserNotFound'
+    this.message = message
+    this.toJSON()
+  }
+}
+
 class EmailNotRegistered extends CustomError {
   constructor(message = 'This email address has not been registered.') {
     super(message)
@@ -59,8 +68,19 @@ class EmailError extends CustomError {
   }
 }
 
+class PasswordTokenExpired extends CustomError {
+  constructor(message = 'Your reset password token has expired') {
+    super(message)
+    this.name = 'PasswordTokenExpired'
+    this.message = message
+    this.toJSON()
+  }
+}
+
 module.exports = {
   ValidationError,
+  UserNotFound,,
+  PasswordTokenExpired
   EmailNotRegistered,
   EmailTakenError,
   ServerError,
