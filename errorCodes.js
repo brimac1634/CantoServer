@@ -23,6 +23,15 @@ class ValidationError extends CustomError {
   }
 }
 
+class EmailNotRegistered extends CustomError {
+  constructor(message = 'This email address has not been registered.') {
+    super(message)
+    this.name = 'EmailNotRegistered'
+    this.message = message
+    this.toJSON()
+  }
+}
+
 class EmailTakenError extends CustomError {
   constructor(message = 'This email address has already been registered') {
     super(message)
@@ -52,6 +61,7 @@ class EmailError extends CustomError {
 
 module.exports = {
   ValidationError,
+  EmailNotRegistered,
   EmailTakenError,
   ServerError,
   EmailError

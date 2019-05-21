@@ -1,4 +1,4 @@
-const { ServerError, ValidationError } = require('../errorCodes');
+const { ServerError, ValidationError, EmailNotRegistered } = require('../errorCodes');
 const { validateEmail } = require('../utils');
 
 const validatePassword = (password) => {
@@ -33,7 +33,7 @@ const handleSignIn = (req, res, db, bcrypt) => {
 			}
 		})
 		.catch(err => {
-			const error = err.isCustom ? err : new ServerError()
+			const error = err.isCustom ? err : new EmailNotRegistered()
 			res.status(400).json(error)
 		})
 }
