@@ -18,7 +18,7 @@ const validatePassword = (password) => {
 
 const handleSignIn = (req, res, db, bcrypt) => {
 	let { email, password } = req.body;
-	email.toLowerCase()
+	email = email.toLowerCase()
 	const emailIsValid = validateEmail(email);
 	const passwordIsValid = validatePassword(password);
 	if (!emailIsValid || !passwordIsValid) {
@@ -51,7 +51,7 @@ const handleSignIn = (req, res, db, bcrypt) => {
 
 const handleRegister = (req, res, db) => {
 	let { email } = req.body;
-	email.toLowerCase()
+	email = email.toLowerCase()
 	const emailIsValid = validateEmail(email);
 	if (!emailIsValid) {
 		return res.status(400).json(new ValidationError('wrong credentials'))
@@ -95,8 +95,12 @@ const handleRegister = (req, res, db) => {
 							  		res.json('success')
 							    }
 							});
+							
 						})
-						.catch(() => res.status(400).json(new ServerError(), 'middle'))
+						.catch(() => {
+							console.log('middle')
+							res.status(400).json(new ServerError())
+						})
 					})
 				})
 				.then(trx.commit)
@@ -104,8 +108,9 @@ const handleRegister = (req, res, db) => {
 			}
 		})
 		.catch(err => {
+			console.log(err)
 			const error = err.isCustom ? err : new ServerError()
-			res.status(400).json(error, 'bottom')
+			res.status(400).json(error)
 		})
 	
 }

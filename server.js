@@ -10,10 +10,19 @@ const login = require('./controllers/login');
 const search = require('./controllers/search');
 const contact = require('./controllers/contact');
 
-if (process.env.PORT === 3000) {
-	
+let db = ''
+if (process.env.PORT == 3000) {
+	db = knex({
+	  client: 'pg',
+	  connection: {
+	    host : '127.0.0.1',
+	    user : 'brianmacpherson',
+	    password : '',
+	    database : 'cantotalk'
+	  }
+	});
 } else {
-	const db = knex({
+	db = knex({
 	  client: 'pg',
 	  connection: {
 	    connectionString: process.env.DATABASE_URL,
