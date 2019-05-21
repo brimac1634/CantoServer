@@ -92,7 +92,7 @@ const handleRegister = (req, res, db) => {
 							    if (error) {
 							    	res.status(400).json(new EmailError())
 							    } else if (body) {
-							  		res.json(user[0].email)
+							  		res.json(user[0])
 							    }
 							});
 						})
