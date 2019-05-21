@@ -79,26 +79,8 @@ const handleRegister = (req, res, db) => {
 							token: token,
 							token_expires: expires 
 						})
-						.then(user => {
-							const data = {
-							    from: `no-reply@cantotalk.com`,
-							    to: email,
-							    subject: 'CantoTalk - Email Verification',
-							    text: `Please follow the link below to verify your email address: ${URL}/verify?token=${token}
-							    . This link will remain valid for 6 hours.`
-							};
-
-							mailgun.messages().send(data, (error, body) => {
-							    if (error) {
-							    	res.status(400).json(new EmailError())
-							    } else if (body) {
-							  		res.json('success')
-							    }
-							});
-							
-						})
+						.then(user => console.log('user here', user))
 						.catch(() => {
-							console.log('middle')
 							res.status(400).json(new ServerError())
 						})
 					})
@@ -114,6 +96,23 @@ const handleRegister = (req, res, db) => {
 		})
 	
 }
+
+// const data = {
+// 	    from: `no-reply@cantotalk.com`,
+// 	    to: email,
+// 	    subject: 'CantoTalk - Email Verification',
+// 	    text: `Please follow the link below to verify your email address: ${URL}/verify?token=${token}
+// 	    . This link will remain valid for 6 hours.`
+// 	};
+
+// 	mailgun.messages().send(data, (error, body) => {
+// 	    if (error) {
+// 	    	res.status(400).json(new EmailError())
+// 	    } else if (body) {
+// 	  		res.json('success')
+// 	    }
+// 	});
+// }
 
 const completeRegistration = (req, res, db, bcrypt) => {
 	const { password, token } = req.body;
