@@ -92,7 +92,7 @@ const handleRegister = (req, res, db) => {
 							    if (error) {
 							    	res.status(400).json(new EmailError())
 							    } else if (body) {
-							  		res.json('success')
+							  		res.json(user[0].email)
 							    }
 							});
 						})
@@ -140,7 +140,7 @@ const completeRegistration = (req, res, db, bcrypt) => {
 							.update({token: ''})
 							.returning('*')
 							.then(user => {
-								res.json(`${loginUser[0].email} has been verified`)
+								res.json(user[0])
 							})
 							.catch(() => {
 								res.status(400).json(new ServerError())
