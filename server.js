@@ -58,7 +58,7 @@ app.post('/favorites/isFavorited', (req, res) => { favorites.checkIfFavorited(re
 
 app.post('/search/favorites', (req, res) => { favorites.getFavorites(req, res, db) })
 
-app.get('/wordOfTheDay', (req, res) => {
+app.get('/word-of-the-day', (req, res) => {
 
 })
 

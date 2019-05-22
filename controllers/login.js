@@ -13,6 +13,22 @@ const validatePassword = (password) => {
 	return password.length >= 6;
 }
 
+const sendVerificationEmail = (user, res) => {
+	const { email, token } = user;
+	sendMail({
+		fromEmail: 'no-reply@cantotalk.com',
+		toEmail: email,
+		subject: 'CantoTalk - Email Verification',
+		html: `Please follow the link below to verify your email address: ${URL}/verify?token=${token}
+	    . This link will remain valid for 6 hours.`,
+		ifSuccess: ()=>{
+			res.json(user)
+		},
+		ifError: ()=>{
+			res.status(400).json(new EmailError())
+		}
+	})
+}
 
 const handleSignIn = (req, res, db, bcrypt) => {
 	let { email, password } = req.body;
@@ -47,20 +63,37 @@ const handleSignIn = (req, res, db, bcrypt) => {
 		})
 }
 
+
+
 const handleRegister = (req, res, db, mc) => {
-	let { email } = req.body;
+	let { email, isReset } = req.body;
 	email = email.toLowerCase()
 	const emailIsValid = validateEmail(email);
 	if (!emailIsValid) {
 		return res.status(400).json(new ValidationError('wrong credentials'))
 	}
+
 	db.select('email').from('login')
 		.where('email', '=', email)
 		.then(data => {
+			const { token, expires } = generateToken()
 			if (data[0] != null) {
-				throw new EmailTakenError()
+				return db('users')
+					.returning('*')
+					.where('email', '=', data[0].email)
+					.update({
+						token: token,
+						token_expires: expires
+					})
+					.then(userData => {
+						const user = userData[0];
+						sendVerificationEmail(user, res)
+					})
+					.catch(err => {
+						console.log(err)
+						res.status(400).json(new ServerError())
+					})
 			} else {
-				const { token, expires } = generateToken()
 				db.transaction(trx => {
 					trx.insert({
 						hash: 'unverified',
@@ -77,20 +110,9 @@ const handleRegister = (req, res, db, mc) => {
 							token: token,
 							token_expires: expires 
 						})
-						.then(user => {
-							sendMail({
-								fromEmail: 'no-reply@cantotalk.com',
-								toEmail: email,
-								subject: 'CantoTalk - Email Verification',
-								html: `Please follow the link below to verify your email address: ${URL}/verify?token=${token}
-							    . This link will remain valid for 6 hours.`,
-								ifSuccess: ()=>{
-									res.json(user[0])
-								},
-								ifError: ()=>{
-									res.status(400).json(new EmailError())
-								}
-							})
+						.then(userData => {
+							const user = userData[0];
+							sendVerificationEmail(user, res)
 						})
 						.catch(() => {
 							res.status(400).json(new ServerError())
@@ -141,8 +163,7 @@ const completeRegistration = (req, res, db, bcrypt) => {
 									fromEmail: 'no-reply@cantotalk.com',
 									toEmail: user.email,
 									subject: 'CantoTalk - Registration Complete',
-									html: `Please follow the link below to verify your email address: ${URL}/verify?token=${token}
-								    . This link will remain valid for 6 hours.`,
+									html: `Your registration was successfully completed. We hope you find good use in CantoTalk!`,
 								})
 								addUserToMailList(user.email)
 								res.json(user)
@@ -168,5 +189,5 @@ const completeRegistration = (req, res, db, bcrypt) => {
 module.exports = {
 	handleSignIn,
 	handleRegister,
-	completeRegistration
+	completeRegistration,
 }

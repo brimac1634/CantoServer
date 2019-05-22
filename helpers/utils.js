@@ -23,7 +23,7 @@ const generateToken = () => {
 }
 
 const sendMail = ({
-  name,
+  name = 'CantoTalk',
   fromEmail = 'info@cantotalk.com',
   toEmail,
   subject,
