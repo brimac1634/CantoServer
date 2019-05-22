@@ -1,6 +1,3 @@
-const api_key = process.env.MG_API_KEY;
-const DOMAIN = process.env.MG_DOMAIN;
-const mailgun = require('mailgun-js')({apiKey: api_key, domain: DOMAIN});
 const { 
 	ServerError, 
 	ValidationError,
@@ -8,8 +5,9 @@ const {
 	EmailNotRegistered, 
 	UserNotFound 
 } = require('../errorCodes');
-const { validateEmail, generateToken } = require('../helpers/utils');
+const { validateEmail, generateToken, sendMail, addUserToMailList } = require('../helpers/utils');
 const { URL } = require('../helpers/constants');
+
 
 const validatePassword = (password) => {
 	return password.length >= 6;
@@ -49,7 +47,7 @@ const handleSignIn = (req, res, db, bcrypt) => {
 		})
 }
 
-const handleRegister = (req, res, db) => {
+const handleRegister = (req, res, db, mc) => {
 	let { email } = req.body;
 	email = email.toLowerCase()
 	const emailIsValid = validateEmail(email);
@@ -80,21 +78,19 @@ const handleRegister = (req, res, db) => {
 							token_expires: expires 
 						})
 						.then(user => {
-							const data = {
-							    from: `no-reply@cantotalk.com`,
-							    to: email,
-							    subject: 'CantoTalk - Email Verification',
-							    text: `Please follow the link below to verify your email address: ${URL}/verify?token=${token}
-							    . This link will remain valid for 6 hours.`
-							};
-
-							mailgun.messages().send(data, (error, body) => {
-							    if (error) {
-							    	res.status(400).json(new EmailError())
-							    } else if (body) {
-							  		res.json(user[0])
-							    }
-							});
+							sendMail({
+								fromEmail: 'no-reply@cantotalk.com',
+								toEmail: email,
+								subject: 'CantoTalk - Email Verification',
+								html: `Please follow the link below to verify your email address: ${URL}/verify?token=${token}
+							    . This link will remain valid for 6 hours.`,
+								ifSuccess: ()=>{
+									res.json(user[0])
+								},
+								ifError: ()=>{
+									res.status(400).json(new EmailError())
+								}
+							})
 						})
 						.catch(() => {
 							res.status(400).json(new ServerError())
@@ -139,8 +135,17 @@ const completeRegistration = (req, res, db, bcrypt) => {
 							.where('email', '=', email[0])
 							.update({token: ''})
 							.returning('*')
-							.then(user => {
-								res.json(user[0])
+							.then(userData => {
+								const user = userData[0];
+								sendMail({
+									fromEmail: 'no-reply@cantotalk.com',
+									toEmail: user.email,
+									subject: 'CantoTalk - Registration Complete',
+									html: `Please follow the link below to verify your email address: ${URL}/verify?token=${token}
+								    . This link will remain valid for 6 hours.`,
+								})
+								addUserToMailList(user.email)
+								res.json(user)
 							})
 							.catch(() => {
 								res.status(400).json(new ServerError())
