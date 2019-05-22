@@ -15,12 +15,13 @@ const validatePassword = (password) => {
 
 const sendVerificationEmail = (user, res) => {
 	const { email, token } = user;
+	const link = `${URL}/verify?token=${token}`
 	sendMail({
 		fromEmail: 'no-reply@cantotalk.com',
 		toEmail: email,
 		subject: 'CantoTalk - Email Verification',
-		html: `Please follow the link below to verify your email address: ${URL}/verify?token=${token}
-	    . This link will remain valid for 6 hours.`,
+		template: 'emailVerification',
+		params: {link},
 		ifSuccess: ()=>{
 			res.json(user)
 		},

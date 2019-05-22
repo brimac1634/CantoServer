@@ -3,6 +3,36 @@ const DOMAIN = process.env.MG_DOMAIN;
 const mailgun = require('mailgun-js')({apiKey: api_key, domain: DOMAIN});
 const mc = require('mailcomposer');
 const mailList = mailgun.lists(`mail-list@${DOMAIN}`)
+const { generateHTML } = require('./HTMLGenerator');
+const winston = require('winston');
+
+async function sendMail({
+  name = 'CantoTalk',
+  fromEmail = 'info@cantotalk.com',
+  toEmail,
+  subject,
+  template,
+  params,
+  ifSuccess,
+  ifError
+}) {
+  const html = await generateHTML(template, params);
+
+  const data = {
+      from: `${name} <${fromEmail}>`,
+      to: toEmail,
+      subject,
+      html
+   };
+
+    mailgun.messages().send(data, (error, body) => {
+        if (error) {
+          ifError(error)
+        } else if (body) {
+          ifSuccess(body)
+        }
+    });
+}
 
 const validateEmail = (email) => {
 	const regexp = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -22,42 +52,6 @@ const generateToken = () => {
     return {token, expires}
 }
 
-const sendMail = ({
-  name = 'CantoTalk',
-  fromEmail = 'info@cantotalk.com',
-  toEmail,
-  subject,
-  html,
-  ifSuccess,
-  ifError
-}) => {
-  const mail = mc({
-    from: `${name} <${fromEmail}>`,
-    to: toEmail,
-    subject: subject,
-    html: html
-  })
-
-  mail.build((mailBuildError, message) => {
-    if (mailBuildError != null) {
-      console.log(mailBuildError)
-    } else if (message != null) {
-      console.log(message)
-      const data = {
-            to: toEmail,
-            message: message.toString('ascii')
-        };
-
-        mailgun.messages().sendMime(data, (error, body) => {
-          if (error) {
-            ifError(error)
-          } else if (body) {
-            ifSuccess(body)
-          }
-      });
-    }
-  })
-}
 
 const addUserToMailList = (email) => {
   const newUser = {
