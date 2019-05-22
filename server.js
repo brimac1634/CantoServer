@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
 const knex = require('knex');
+const schdule = require('node-schedule');
 require('dotenv').config();
 
 const favorites = require('./controllers/favorites');
@@ -66,6 +67,22 @@ app.get('/learn', (req, res) => {
 	const {id} = req.params;
 })
 
+schdule.scheduleJob('0 0 * * *', ()=>{
+	db('entries').count('entryID')
+		.then(data => {
+			const totalEntries = data[0].count;
+			const entryID = Math.floor(Math.random() * totalEntries) + 1
+			return db('word_of_day')
+				.returning('*')
+				.insert({
+					entry_id: entryID,
+					date: new Date()
+				})
+				.then(console.log)
+				.catch(console.log)
+		})
+		.catch(console.log)
+})
 
 app.listen(process.env.PORT || 3000, () => {
 	console.log(`app is running on port ${process.env.PORT}`);
