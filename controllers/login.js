@@ -147,34 +147,27 @@ const completeRegistration = (req, res, db, bcrypt) => {
 					throw new PasswordTokenExpired()
 				} else {
 					const hash = bcrypt.hashSync(password);
-					db.transaction(trx => {
-						trx.select('*').from('login')
+					db.select('*').from('login')
 						.where('email', '=', user.email)
 						.update({hash: hash})
 						.returning('email')
-						.then(email => {
-							return trx.select('*').from('users')
-							.where('email', '=', email[0])
-							.update({token: ''})
-							.returning('*')
-							.then(userData => {
-								const user = userData[0];
-								sendMail({
-									fromEmail: 'no-reply@cantotalk.com',
-									toEmail: user.email,
-									subject: 'CantoTalk - Registration Complete',
-									html: `Your registration was successfully completed. We hope you find good use in CantoTalk!`,
-								})
-								addUserToMailList(user.email)
-								res.json(user)
+						.then(data => {
+							const email = data[0];
+							console.log(email)
+							sendMail({
+								fromEmail: 'no-reply@cantotalk.com',
+								toEmail: email,
+								subject: 'CantoTalk - Registration Complete',
+								html: `Your registration was successfully completed. We hope you find good use in CantoTalk!`,
+								ifSuccess: () => console.log('success'),
+								ifError: error => console.log(error)
 							})
-							.catch(() => {
-								res.status(400).json(new ServerError())
-							})
+							addUserToMailList(email)
+							res.json(email)
 						})
-						.then(trx.commit)
-						.catch(trx.rollback)
-					})
+						.catch(() => {
+							res.status(400).json(new ServerError())
+						})
 				}
 			} else {
 				throw new UserNotFound()

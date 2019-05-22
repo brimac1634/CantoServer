@@ -50,9 +50,9 @@ const sendMail = ({
 
         mailgun.messages().sendMime(data, (error, body) => {
           if (error) {
-            ifError()
+            ifError(error)
           } else if (body) {
-            ifSuccess()
+            ifSuccess(body)
           }
       });
     }
