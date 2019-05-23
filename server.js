@@ -4,16 +4,14 @@ const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
 const knex = require('knex');
 const schdule = require('node-schedule');
-const { configureDB } = require('./helpers/utils');
-
 require('dotenv').config();
-
 
 const favorites = require('./controllers/favorites');
 const login = require('./controllers/login');
 const search = require('./controllers/search');
 const contact = require('./controllers/contact');
 
+const { configureDB } = require('./helpers/utils');
 const db = configureDB()
 
 const app = express();
