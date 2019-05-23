@@ -1,9 +1,31 @@
 const api_key = process.env.MG_API_KEY;
 const DOMAIN = process.env.MG_DOMAIN;
 const mailgun = require('mailgun-js')({apiKey: api_key, domain: DOMAIN});
-const mc = require('mailcomposer');
+const knex = require('knex');
 const mailList = mailgun.lists(`mail-list@${DOMAIN}`)
 const { generateHTML } = require('./HTMLGenerator');
+
+const configureDB = () => {
+  if (process.env.PORT == 3000) {
+    return knex({
+      client: 'pg',
+      connection: {
+        host : '127.0.0.1',
+        user : 'brianmacpherson',
+        password : '',
+        database : 'cantotalk'
+      }
+    });
+  } else {
+    return knex({
+      client: 'pg',
+      connection: {
+        connectionString: process.env.DATABASE_URL,
+        ssl: true,
+      }
+    });
+  }
+}
 
 async function sendMail({
   name = 'CantoTalk',
@@ -73,6 +95,7 @@ const addUserToMailList = (email) => {
 }
 
 module.exports = {
+  configureDB,
   validateEmail,
   generateToken,
   sendMail,

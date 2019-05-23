@@ -4,33 +4,17 @@ const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
 const knex = require('knex');
 const schdule = require('node-schedule');
+const { configureDB } = require('./helpers/utils');
+
 require('dotenv').config();
+
 
 const favorites = require('./controllers/favorites');
 const login = require('./controllers/login');
 const search = require('./controllers/search');
 const contact = require('./controllers/contact');
 
-let db = ''
-if (process.env.PORT == 3000) {
-	db = knex({
-	  client: 'pg',
-	  connection: {
-	    host : '127.0.0.1',
-	    user : 'brianmacpherson',
-	    password : '',
-	    database : 'cantotalk'
-	  }
-	});
-} else {
-	db = knex({
-	  client: 'pg',
-	  connection: {
-	    connectionString: process.env.DATABASE_URL,
-	    ssl: true,
-	  }
-	});
-}
+const db = configureDB()
 
 const app = express();
 app.use(bodyParser.json());
@@ -64,23 +48,6 @@ app.get('/word-of-the-day', (req, res) => {
 
 app.get('/learn', (req, res) => {
 	const {id} = req.params;
-})
-
-schdule.scheduleJob('0 0 * * *', ()=>{
-	db('entries').count('entryID')
-		.then(data => {
-			const totalEntries = data[0].count;
-			const entryID = Math.floor(Math.random() * totalEntries) + 1
-			return db('word_of_day')
-				.returning('*')
-				.insert({
-					entry_id: entryID,
-					date: new Date()
-				})
-				.then(console.log)
-				.catch(console.log)
-		})
-		.catch(console.log)
 })
 
 app.listen(process.env.PORT || 3000, () => {
