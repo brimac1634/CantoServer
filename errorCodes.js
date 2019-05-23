@@ -15,9 +15,10 @@ class CustomError extends Error {
 }
 
 class ValidationError extends CustomError {
-  constructor(message) {
+  constructor(message = 'The information you have entered does not match our records.') {
     super(message)
     this.name = 'ValidationError'
+    this.title = 'Invalid Credentials'
     this.message = message
     this.toJSON()
   }
@@ -36,6 +37,17 @@ class EmailNotRegistered extends CustomError {
   constructor(message = 'This email address has not been registered.') {
     super(message)
     this.name = 'EmailNotRegistered'
+    this.title = 'Email Not Registered'
+    this.message = message
+    this.toJSON()
+  }
+}
+
+class RegistrationIncomplete extends CustomError {
+  constructor(message = 'Your email address has not been confirmed and therefore your registration is incomplete.') {
+    super(message)
+    this.name = 'RegistrationIncomplete'
+    this.title = 'Email Unconfirmed'
     this.message = message
     this.toJSON()
   }
@@ -45,6 +57,7 @@ class EmailTakenError extends CustomError {
   constructor(message = 'This email address has already been registered') {
     super(message)
     this.name = 'EmailTakenError'
+    this.title = 'Email Already Registered'
     this.message = message
     this.toJSON()
   }
@@ -72,6 +85,7 @@ class PasswordTokenExpired extends CustomError {
   constructor(message = 'Your reset password token has expired') {
     super(message)
     this.name = 'PasswordTokenExpired'
+    this.title = 'Link Expired'
     this.message = message
     this.toJSON()
   }
@@ -79,6 +93,7 @@ class PasswordTokenExpired extends CustomError {
 
 module.exports = {
   ValidationError,
+  RegistrationIncomplete,
   UserNotFound,
   PasswordTokenExpired,
   EmailNotRegistered,

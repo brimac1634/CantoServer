@@ -3,7 +3,8 @@ const {
 	ValidationError,
 	PasswordTokenExpired,
 	EmailNotRegistered, 
-	UserNotFound 
+	UserNotFound,
+	RegistrationIncomplete 
 } = require('../errorCodes');
 const { validateEmail, generateToken, sendMail, addUserToMailList } = require('../helpers/utils');
 const { URL } = require('../helpers/constants');
@@ -37,22 +38,26 @@ const handleSignIn = (req, res, db, bcrypt) => {
 	const emailIsValid = validateEmail(email);
 	const passwordIsValid = validatePassword(password);
 	if (!emailIsValid || !passwordIsValid) {
-		return res.status(400).json(new ValidationError('wrong credentials'))
+		return res.status(400).json(new ValidationError())
 	}
 	db.select('email', 'hash').from('login')
 		.where('email', '=', email)
 		.then(data => {
-			if (data[0]) {
-				const isValid = bcrypt.compareSync(password, data[0].hash)
-				if (isValid) {
-					return db.select('*').from('users')
-						.where('email', '=', email)
-						.then(user => {
-							res.json(user[0])
-						})
-						.catch(err => res.status(400).json(new ServerError()))
+			if (data[0].email) {
+				if (data[0].hash === 'unverified') {
+					throw new RegistrationIncomplete()
 				} else {
-					throw new ValidationError('wrong credentials')
+					const isValid = bcrypt.compareSync(password, data[0].hash)
+					if (isValid) {
+						return db.select('*').from('users')
+							.where('email', '=', email)
+							.then(user => {
+								res.json(user[0])
+							})
+							.catch(err => res.status(400).json(new ServerError()))
+					} else {
+						throw new ValidationError()
+					}
 				}
 			} else {
 				throw new EmailNotRegistered()
@@ -71,7 +76,7 @@ const handleRegister = (req, res, db, mc) => {
 	email = email.toLowerCase()
 	const emailIsValid = validateEmail(email);
 	if (!emailIsValid) {
-		return res.status(400).json(new ValidationError('wrong credentials'))
+		return res.status(400).json(new ValidationError())
 	}
 
 	db.select('email').from('login')
@@ -136,7 +141,7 @@ const completeRegistration = (req, res, db, bcrypt) => {
 	const { password, token } = req.body;
 	const passwordIsValid = validatePassword(password);
 	if (!passwordIsValid) {
-		return res.status(400).json(new ValidationError('wrong credentials'))
+		return res.status(400).json(new ValidationError())
 	}
 	const now = new Date();
 	db.select('*').from('users')
