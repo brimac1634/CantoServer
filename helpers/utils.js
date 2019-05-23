@@ -4,7 +4,6 @@ const mailgun = require('mailgun-js')({apiKey: api_key, domain: DOMAIN});
 const mc = require('mailcomposer');
 const mailList = mailgun.lists(`mail-list@${DOMAIN}`)
 const { generateHTML } = require('./HTMLGenerator');
-const winston = require('winston');
 
 async function sendMail({
   name = 'CantoTalk',
