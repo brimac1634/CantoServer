@@ -11,12 +11,18 @@ async function sendMail({
   fromEmail = 'info@cantotalk.com',
   toEmail,
   subject,
+  message,
   template,
   params,
   ifSuccess,
   ifError
 }) {
-  const html = await generateHTML(template, params);
+  let html = ''
+  if (template != null) {
+    html = await generateHTML(template, params);
+  } else {
+    html = `<p>${message}</p>`
+  }
 
   const data = {
       from: `${name} <${fromEmail}>`,

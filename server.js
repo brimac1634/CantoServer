@@ -32,7 +32,6 @@ if (process.env.PORT == 3000) {
 	});
 }
 
-
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());

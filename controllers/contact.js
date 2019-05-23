@@ -12,7 +12,7 @@ const handleContact = (req, res, db, mc) => {
 			fromEmail: email,
 			toEmail: 'info@cantotalk.com',
 			subject: 'CantoTalk - Contact Us',
-			template: 'action',
+			message: message,
 			ifSuccess: ()=>{
 				db('messages')
 					.returning('*')
@@ -28,27 +28,6 @@ const handleContact = (req, res, db, mc) => {
 				res.status(400).json(new EmailError())
 			}
 		})
-		// sendMail({
-		// 	name: name,
-		// 	fromEmail: email,
-		// 	toEmail: 'info@cantotalk.com',
-		// 	subject: 'CantoTalk - Contact Us',
-		// 	html: message,
-		// 	ifSuccess: ()=>{
-		// 		db('messages')
-		// 			.returning('*')
-		// 			.insert({
-		// 				name: name,
-		// 				email: email,
-		// 				date_sent: new Date()
-		// 			})
-		// 			.then(message => res.json(message))
-		// 			.catch(() => res.status(400).json(new ServerError()))
-		// 	},
-		// 	ifError: ()=>{
-		// 		res.status(400).json(new EmailError())
-		// 	}
-		// })
 	}
 }
 

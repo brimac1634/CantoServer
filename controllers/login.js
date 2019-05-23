@@ -163,10 +163,14 @@ const completeRegistration = (req, res, db, bcrypt) => {
 								sendMail({
 									fromEmail: 'no-reply@cantotalk.com',
 									toEmail: user.email,
-									subject: 'CantoTalk - Registration Complete',
-									html: `Your registration was successfully completed. We hope you find good use in CantoTalk!`,
-									ifSuccess: () => console.log('success'),
-									ifError: error => console.log(error)
+									subject: 'CantoTalk - Verification Complete',
+									template: 'verificationComplete',
+									ifSuccess: ()=>{
+										res.json(user)
+									},
+									ifError: ()=>{
+										res.status(400).json(new EmailError())
+									}
 								})
 								addUserToMailList(user.email)
 								res.json(user)
