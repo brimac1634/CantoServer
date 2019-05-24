@@ -72,7 +72,7 @@ const handleSignIn = (req, res, db, bcrypt) => {
 
 
 const handleRegister = (req, res, db, mc) => {
-	let { email, isReset } = req.body;
+	let { name, email } = req.body;
 	email = email.toLowerCase()
 	const emailIsValid = validateEmail(email);
 	if (!emailIsValid) {
