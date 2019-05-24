@@ -8,6 +8,7 @@ class CustomError extends Error {
     return {
       error: {
         name: this.name,
+        title: this.title,
         message: this.message,
       }
     }
@@ -25,9 +26,10 @@ class ValidationError extends CustomError {
 }
 
 class UserNotFound extends CustomError {
-  constructor(message = 'The user could not be found.') {
+  constructor(message = 'No profile was found under this email address.') {
     super(message)
     this.name = 'UserNotFound'
+    this.title = 'User Not Found'
     this.message = message
     this.toJSON()
   }
@@ -53,29 +55,21 @@ class RegistrationIncomplete extends CustomError {
   }
 }
 
-class EmailTakenError extends CustomError {
-  constructor(message = 'This email address has already been registered') {
-    super(message)
-    this.name = 'EmailTakenError'
-    this.title = 'Email Already Registered'
-    this.message = message
-    this.toJSON()
-  }
-}
-
 class ServerError extends CustomError {
-  constructor(message = 'There was an error with the server') {
+  constructor(message = 'It appears there was an error with our server. Please try again shortly.') {
     super(message)
     this.name = 'ServerError'
+    this.title = 'Server Error'
     this.message = message
     this.toJSON()
   }
 }
 
 class EmailError extends CustomError {
-  constructor(message = 'There was an error with completing the email request') {
+  constructor(message = 'Oops! There was an error with completing the email request. Please try again shortly.') {
     super(message)
     this.name = 'EmailError'
+    this.title = 'Email Failed'
     this.message = message
     this.toJSON()
   }
@@ -97,7 +91,6 @@ module.exports = {
   UserNotFound,
   PasswordTokenExpired,
   EmailNotRegistered,
-  EmailTakenError,
   ServerError,
   EmailError
 }
