@@ -100,33 +100,38 @@ const handleRegister = (req, res, db, mc) => {
 						res.status(400).json(new ServerError())
 					})
 			} else {
-				db.transaction(trx => {
-					trx.insert({
-						hash: 'unverified',
-						email: email
+				if (name != null) {
+					db.transaction(trx => {
+						trx.insert({
+							hash: 'unverified',
+							email: email
+						})
+						.into('login')
+						.returning('email')
+						.then(loginEmail => {
+							return trx('users')
+							.returning('*')
+							.insert({
+								name: name,
+								email: loginEmail[0],
+								joined: new Date(),
+								token: token,
+								token_expires: expires 
+							})
+							.then(userData => {
+								const user = userData[0];
+								sendVerificationEmail(user, res)
+							})
+							.catch(() => {
+								res.status(400).json(new ServerError())
+							})
+						})
+						.then(trx.commit)
+						.catch(trx.rollback)
 					})
-					.into('login')
-					.returning('email')
-					.then(loginEmail => {
-						return trx('users')
-						.returning('*')
-						.insert({
-							email: loginEmail[0],
-							joined: new Date(),
-							token: token,
-							token_expires: expires 
-						})
-						.then(userData => {
-							const user = userData[0];
-							sendVerificationEmail(user, res)
-						})
-						.catch(() => {
-							res.status(400).json(new ServerError())
-						})
-					})
-					.then(trx.commit)
-					.catch(trx.rollback)
-				})
+				} else {
+					throw new EmailNotRegistered()
+				}
 			}
 		})
 		.catch(err => {
@@ -134,7 +139,6 @@ const handleRegister = (req, res, db, mc) => {
 			const error = err.isCustom ? err : new ServerError()
 			res.status(400).json(error)
 		})
-	
 }
 
 const completeRegistration = (req, res, db, bcrypt) => {
