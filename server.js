@@ -9,6 +9,7 @@ const favorites = require('./controllers/favorites');
 const login = require('./controllers/login');
 const search = require('./controllers/search');
 const contact = require('./controllers/contact');
+const wordOfTheDay = require('./controllers/wordOfTheDay');
 
 const { configureDB } = require('./helpers/utils');
 const db = configureDB()
@@ -41,9 +42,7 @@ app.post('/favorites/isFavorited', (req, res) => { favorites.checkIfFavorited(re
 
 app.post('/search/favorites', (req, res) => { favorites.getFavorites(req, res, db) })
 
-app.get('/word-of-the-day', (req, res) => {
-
-})
+app.get('/word-of-the-day', (req, res) => { wordOfTheDay.getWordOfDay(res, db)})
 
 app.get('/learn', (req, res) => {
 	const {id} = req.params;
