@@ -18,5 +18,21 @@ function addWordOfDay() {
 		})
 		.catch(console.log)
 }
-
 addWordOfDay();
+
+function clearRecents() {
+	const date = new Date();
+	date.setMonth(date.getMonth() - 1);
+	db.select('recent_id').from('recents')
+		.where('date_viewed', '<', date)
+		.then(oldRecents => {
+			console.log(`Recents beyond one month removed: ${oldRecents}`)
+			return db('recents')
+				.returning('*')
+				.where('date_viewed', '<', date)
+				.del()
+				.then(console.log)
+				.catch(console.log)
+		})
+}
+clearRecents()
