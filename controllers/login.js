@@ -96,7 +96,6 @@ const handleRegister = (req, res, db, mc) => {
 						sendVerificationEmail(user, res)
 					})
 					.catch(err => {
-						console.log(err)
 						res.status(400).json(new ServerError())
 					})
 			} else {
@@ -135,7 +134,6 @@ const handleRegister = (req, res, db, mc) => {
 			}
 		})
 		.catch(err => {
-			console.log(err)
 			const error = err.isCustom ? err : new ServerError()
 			res.status(400).json(error)
 		})
@@ -175,10 +173,10 @@ const completeRegistration = (req, res, db, bcrypt) => {
 									subject: 'CantoTalk - Verification Complete',
 									template: 'verificationComplete',
 									ifSuccess: ()=>{
-										res.json(user)
+										console.log(`new user confirmed: ${user}`)
 									},
 									ifError: ()=>{
-										res.status(400).json(new EmailError())
+										console.log(`failed to send email confirmation: ${user}`)
 									}
 								})
 								addUserToMailList(user.email)
@@ -202,8 +200,64 @@ const completeRegistration = (req, res, db, bcrypt) => {
 		})
 }
 
+const deleteAccount = (req, res, db, bcrypt) => {
+	const { userEmail, password } = req.body;
+	db.select('email', 'hash').from('login')
+		.where('email', '=', userEmail)
+		.then(data => {
+			if (data[0].email) {
+				const isValid = bcrypt.compareSync(password, data[0].hash)
+				if (isValid) {
+					db.transaction(trx => {
+						return trx.select('*').from('login')
+						.where('email', '=', userEmail)
+						.returning('email')
+						.del()
+						.then(email => {
+							return trx.select('*').from('users')
+							.where('email', '=', email[0])
+							.returning('id')
+							.del()
+							.then(userID => {
+								return trx.select('*').from('favorites')
+								.where('user_id', '=', userID[0])
+								.returning('user_id')
+								.del()
+								.then(() => {
+									return trx.select('*').from('recents')
+									.where('user_id', '=', userID[0])
+									.returning('user_id')
+									.del()
+									.then(() => {
+										console.log(`account deleted: ${userEmail}`)
+										res.json('account deleted')
+									})
+								})
+							})
+							.catch(() => {
+								res.status(400).json(new ServerError())
+							})
+						})
+						.then(trx.commit)
+						.catch(trx.rollback)
+					})
+				} else {
+					throw new ValidationError()
+				}
+			} else {
+				throw new EmailNotRegistered()
+			}
+		})
+		.catch(err => {
+			const error = err.isCustom ? err : new ServerError()
+			res.status(400).json(error)
+		})
+	
+}
+
 module.exports = {
 	handleSignIn,
 	handleRegister,
 	completeRegistration,
+	deleteAccount
 }

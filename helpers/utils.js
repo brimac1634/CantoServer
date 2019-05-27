@@ -85,11 +85,22 @@ const addUserToMailList = (email) => {
       subscribed: true,
       address: email
   };
-  mailList.members().create(newUser, function (error, data) {
-    if (error) {
-      console.log(error);
-    } else if (data) {
-      console.log(data);
+  mailList.members().list(function (err, members) {
+    if (members) {
+      const memberExists = members.items.some(member => {
+        return member.address === email;
+      })
+      if (!memberExists) {
+        mailList.members().create(newUser, function (error, data) {
+          if (error) {
+            console.log(error);
+          } else if (data) {
+            console.log(data);
+          }
+        });
+      }
+    } else if (err) {
+      console.log('error pulling mail list.')
     }
   });
 }
