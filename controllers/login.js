@@ -43,7 +43,7 @@ const handleSignIn = (req, res, db, bcrypt) => {
 	db.select('email', 'hash').from('login')
 		.where('email', '=', email)
 		.then(data => {
-			if (data[0].email) {
+			if (data[0]) {
 				if (data[0].hash === 'unverified') {
 					throw new RegistrationIncomplete()
 				} else {
