@@ -1,5 +1,8 @@
 const getWordOfDay = (res, db) => {
-	db.select('*').from('word_of_day')
+	db.select('entry_id', 'date').from('word_of_day')
+	db.select('*').from('entries')
+		.rightJoin('word_of_day', 'entries.entry_id', 'word_of_day.entry_id')
+		.orderBy('date', 'desc')
 		.then(data => {
 			res.json(data)
 		})
