@@ -36,3 +36,20 @@ function clearRecents() {
 		})
 }
 clearRecents()
+
+function clearWordsOfDay() {
+	const date = new Date();
+	date.setMonth(date.getMonth() - 6);
+	db.select('*').from('word_of_day')
+		.where('date', '<', date)
+		.then(oldWODS => {
+			console.log(`WODS beyond 6 months removed: ${oldWODS}`)
+			return db('word_of_day')
+				.returning('*')
+				.where('date', '<', date)
+				.del()
+				.then(console.log)
+				.catch(console.log)
+		})
+}
+clearWordsOfDay()
