@@ -1,5 +1,6 @@
 const { 
 	ServerError, 
+	NameNotProvided,
 	ValidationError,
 	PasswordTokenExpired,
 	EmailNotRegistered, 
@@ -129,7 +130,7 @@ const handleRegister = (req, res, db, mc) => {
 						.catch(trx.rollback)
 					})
 				} else {
-					throw new EmailNotRegistered()
+					throw new NameNotProvided()
 				}
 			}
 		})
@@ -200,6 +201,27 @@ const completeRegistration = (req, res, db, bcrypt) => {
 		})
 }
 
+const handleFB = (req, res, db) => {
+	let { name, email, userID } = req.body;
+	email = email.toLowerCase()
+	db.select('*').from('users')
+		.where('email', '=', email)
+		.then(data => {
+			console.log('here', data)
+			if (data[0]) {
+				//email registered
+				console.log(data[0])
+			} else {
+				//email not registered
+				console.log('non registered')
+			}
+		})
+		.catch(err => {
+			const error = err.isCustom ? err : new ServerError()
+			res.status(400).json(error)
+		})
+}
+
 const deleteAccount = (req, res, db, bcrypt) => {
 	const { userEmail, password } = req.body;
 	db.select('email', 'hash').from('login')
@@ -252,12 +274,14 @@ const deleteAccount = (req, res, db, bcrypt) => {
 			const error = err.isCustom ? err : new ServerError()
 			res.status(400).json(error)
 		})
-	
 }
+
+
 
 module.exports = {
 	handleSignIn,
 	handleRegister,
 	completeRegistration,
+	handleFB,
 	deleteAccount
 }

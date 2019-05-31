@@ -34,6 +34,8 @@ app.post('/register', (req, res) => { login.handleRegister(req, res, db) })
 
 app.post('/register/complete', (req, res) => { login.completeRegistration(req, res, db, bcrypt) })
 
+app.post('/api/v1/auth/facebook', (req, res) => { login.handleFB(req, res, db) })
+
 app.post('/delete-account', (req, res) => { login.deleteAccount(req, res, db, bcrypt) })
 
 app.post('/favorites/toggle', (req, res) => { favorites.toggleFavorite(req, res, db) })

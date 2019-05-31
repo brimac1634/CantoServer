@@ -25,6 +25,16 @@ class ValidationError extends CustomError {
   }
 }
 
+class NameNotProvided extends CustomError {
+  constructor(message = 'You must provide your full name in order to register.') {
+    super(message)
+    this.name = 'NameNotProvided'
+    this.title = 'Name Not Provided'
+    this.message = message
+    this.toJSON()
+  }
+}
+
 class UserNotFound extends CustomError {
   constructor(message = 'No profile was found under this email address.') {
     super(message)
@@ -87,6 +97,7 @@ class PasswordTokenExpired extends CustomError {
 
 module.exports = {
   ValidationError,
+  NameNotProvided,
   RegistrationIncomplete,
   UserNotFound,
   PasswordTokenExpired,
