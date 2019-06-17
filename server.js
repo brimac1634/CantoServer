@@ -3,7 +3,14 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
 const schdule = require('node-schedule');
+const https = require('https');
 require('dotenv').config();
+
+const { SERVERURL, URL } = require('./helpers/constants');
+setInterval(function() {
+    https.get(SERVERURL);
+    https.get(URL);
+}, 3000000);
 
 const favorites = require('./controllers/favorites');
 const login = require('./controllers/login');
