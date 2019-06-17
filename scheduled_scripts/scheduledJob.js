@@ -1,22 +1,36 @@
 const { configureDB } = require('../helpers/utils');
-
 const db = configureDB()
 
+function formatDate() {
+	return new Date().toISOString().split('T')[0];
+}
+
 function addWordOfDay() {
-    db('entries').count('entry_id')
+	console.log(`adding word of the day for ${formatDate()}`)
+	db.select('date').from('word_of_day')
+		.where('date', '=', formatDate())
 		.then(data => {
-			const totalEntries = data[0].count;
-			const entryID = Math.floor(Math.random() * totalEntries) + 1
-			return db('word_of_day')
-				.returning('*')
-				.insert({
-					entry_id: entryID,
-					date: new Date()
-				})
-				.then(console.log)
-				.catch(console.log)
+			if (data[0]) {
+				console.log('already added')
+			} else {
+				  db('entries').count('entry_id')
+					.then(data => {
+						const totalEntries = data[0].count;
+						const entryID = Math.floor(Math.random() * totalEntries) + 1
+						return db('word_of_day')
+							.returning('*')
+							.insert({
+								entry_id: entryID,
+								date: new Date()
+							})
+							.then(console.log)
+							.catch(console.log)
+					})
+					.catch(console.log)
+			}
 		})
-		.catch(console.log)
+		.catch(console.log('failed to add word of the day'))
+  
 }
 addWordOfDay();
 
@@ -35,7 +49,7 @@ function clearRecents() {
 				.catch(console.log)
 		})
 }
-clearRecents()
+clearRecents();
 
 function clearWordsOfDay() {
 	const date = new Date();
@@ -52,4 +66,4 @@ function clearWordsOfDay() {
 				.catch(console.log)
 		})
 }
-clearWordsOfDay()
+clearWordsOfDay();
