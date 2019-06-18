@@ -23,7 +23,9 @@ function addWordOfDay() {
 								entry_id: entryID,
 								date: new Date()
 							})
-							.then(console.log)
+							.then(wod => {
+								console.log(`Added wod for ${wod[0].date}`)
+							})
 							.catch(console.log)
 					})
 					.catch(console.log)
@@ -45,7 +47,7 @@ function clearRecents() {
 				.returning('*')
 				.where('date_viewed', '<', date)
 				.del()
-				.then(console.log)
+				.then(console.log('Remove recents - success'))
 				.catch(console.log)
 		})
 }
@@ -62,7 +64,7 @@ function clearWordsOfDay() {
 				.returning('*')
 				.where('date', '<', date)
 				.del()
-				.then(console.log)
+				.then(console.log('Remove wods - success'))
 				.catch(console.log)
 		})
 }

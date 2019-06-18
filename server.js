@@ -10,7 +10,7 @@ const { SERVERURL, URL } = require('./helpers/constants');
 setInterval(function() {
     https.get(SERVERURL);
     https.get(URL);
-}, 3000000);
+}, 300000);
 
 const favorites = require('./controllers/favorites');
 const login = require('./controllers/login');
