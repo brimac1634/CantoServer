@@ -1,11 +1,13 @@
 const { validateEmail, sendMail } = require('../helpers/utils');
+const s3Key = process.env.S3_KEY;
+const s3Secret = process.env.S3_SECRET;
 const s3 = require('s3');
 
 
 const client = s3.createClient({  
   s3Options: {
-    accessKeyId: 'AKIAJ2BF62TKDGACU4RA',
-    secretAccessKey: <YOUR SECRET KEY>
+    accessKeyId: s3Key,
+    secretAccessKey: s3Secret
   }
 });
 
