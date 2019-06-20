@@ -17,6 +17,7 @@ const login = require('./controllers/login');
 const search = require('./controllers/search');
 const contact = require('./controllers/contact');
 const wordOfTheDay = require('./controllers/wordOfTheDay');
+const stream = require('./controllers/stream');
 
 const { configureDB } = require('./helpers/utils');
 const db = configureDB()
@@ -30,6 +31,8 @@ app.post('/contact-us', (req, res) => { contact.handleContact(req, res, db) })
 app.post('/search', (req, res) => { search.handleSearch(req, res, db) })
 
 app.post('/entryid', (req, res) => { search.handleEntryID(req, res, db) })
+
+app.post('/stream-audio', (req, res) => { stream.handleStream(req, res) })
 
 app.post('/recent/add', (req, res) => { search.addRecent(req, res, db) })
 
