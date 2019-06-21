@@ -10,6 +10,7 @@ const client = s3.createClient({
     secretAccessKey: s3Secret
   }
 });
+console.log(s3Secret, s3Key)
 
 const handleStream = (req, res) => {
 	const params = {
