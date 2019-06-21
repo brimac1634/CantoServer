@@ -32,7 +32,7 @@ app.post('/search', (req, res) => { search.handleSearch(req, res, db) })
 
 app.post('/entryid', (req, res) => { search.handleEntryID(req, res, db) })
 
-app.post('/stream-audio', (req, res) => { stream.handleStream(req, res) })
+app.get('/stream-audio', (req, res) => { stream.handleStream(req, res) })
 
 app.post('/recent/add', (req, res) => { search.addRecent(req, res, db) })
 

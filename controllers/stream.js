@@ -10,12 +10,11 @@ const client = s3.createClient({
     secretAccessKey: s3Secret
   }
 });
-console.log(s3Secret, s3Key)
 
 const handleStream = (req, res) => {
 	const params = {
-	    Bucket: 'New-Bucket-1020',
-	    Key: 'test.mp3'
+	    Bucket: 'cantotalk-audio-clips',
+	    Key: 'entryID_1.mp3'
 	}
 	const downloadStream = client.downloadStream(params)
 
@@ -29,7 +28,6 @@ const handleStream = (req, res) => {
 	  });
 	})
 
-	// Pipe download stream to response
 	downloadStream.pipe(res);
 }
 
