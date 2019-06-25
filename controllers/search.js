@@ -1,18 +1,46 @@
 const { ServerError } = require('../errorCodes')
 
 const handleSearch = (req, res, db) => {
-	const { searchKey } = req.body;
+	const { searchKey, searchType } = req.body;
 	const key = searchKey.toLowerCase();
-	return db.select('*').from('entries')
-		.whereRaw('LOWER(english_word) LIKE ?', `%${key}%`)		
-		.orWhere('canto_word', 'LIKE', `%${key}%`)
-		.orWhereRaw('LOWER(jyutping) LIKE ?', `%${key}%`)
-		.orWhere('mandarin_word', 'LIKE', `%${key}%`)
-		.orderByRaw('CHAR_LENGTH(english_word)')
-		.then(entries => {
-			res.json(entries)
-		})
-		.catch(err => res.status(400).json(new ServerError()))
+
+	if (searchType === 'All') {
+		return db.select('*').from('entries')
+			.whereRaw('LOWER(english_word) LIKE ?', `%${key}%`)		
+			.orWhere('canto_word', 'LIKE', `%${key}%`)
+			.orWhereRaw('LOWER(jyutping) LIKE ?', `%${key}%`)
+			.orWhere('mandarin_word', 'LIKE', `%${key}%`)
+			.orderByRaw('CHAR_LENGTH(english_word)')
+			.then(entries => {
+				res.json(entries)
+			})
+			.catch(err => res.status(400).json(new ServerError()))
+	} else {
+		let query;
+		let column;
+		switch (searchType) {
+			case 'Can':
+				column = 'canto_word'
+				query = 'canto_word LIKE ?'; 
+			case 'Eng':
+				column = 'english_word'
+				query = 'LOWER(english_word) LIKE ?'; 
+			case 'Man':
+				column = 'mandarin_word'
+				query = 'mandarin_word LIKE ?';
+			case 'Jyu':
+				column = 'jyutping'
+				query = 'LOWER(jyutping) LIKE ?'; 
+		}
+
+	 	return db.select('*').from('entries')
+			.whereRaw(query, `%${key}%`)
+			.orderByRaw(`CHAR_LENGTH(${column})`)
+			.then(entries => {
+				res.json(entries)
+			})
+			.catch(err => res.status(400).json(new ServerError()))
+	}
 }
 
 const handleEntryID = (req, res, db) => {
