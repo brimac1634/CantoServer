@@ -1,4 +1,4 @@
-const { validateEmail, sendMail } = require('../helpers/utils');
+const { AudioNotFound } = require('../errorCodes');
 const s3Key = process.env.S3_KEY;
 const s3Secret = process.env.S3_SECRET;
 const s3 = require('s3');
@@ -12,14 +12,15 @@ const client = s3.createClient({
 });
 
 const handleStream = (req, res) => {
+	const { entryID } = req.body;
 	const params = {
 	    Bucket: 'cantotalk-audio-clips',
-	    Key: 'entryID_1.mp3'
+	    Key: `entryID_${entryID}.mp3`
 	}
 	const downloadStream = client.downloadStream(params)
 
 	downloadStream.on('error', function() {
-	  res.status(404).send('Not Found');
+	  res.status(404).send(new AudioNotFound());
 	});
 
 	downloadStream.on('httpHeaders', function(statusCode, headers, resp) {

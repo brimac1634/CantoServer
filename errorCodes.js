@@ -25,6 +25,16 @@ class ValidationError extends CustomError {
   }
 }
 
+class AudioNotFound extends CustomError {
+  constructor(message = 'The audio clip for this entry could not be found.') {
+    super(message)
+    this.name = 'AudioNotFound'
+    this.title = 'Audio Not Found'
+    this.message = message
+    this.toJSON()
+  }
+}
+
 class NameNotProvided extends CustomError {
   constructor(message = 'You must provide your full name in order to register.') {
     super(message)
@@ -97,6 +107,7 @@ class PasswordTokenExpired extends CustomError {
 
 module.exports = {
   ValidationError,
+  AudioNotFound,
   NameNotProvided,
   RegistrationIncomplete,
   UserNotFound,
