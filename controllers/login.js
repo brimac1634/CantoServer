@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken');
 const { 
 	ServerError, 
 	NameNotProvided,
@@ -8,6 +9,7 @@ const {
 	RegistrationIncomplete 
 } = require('../errorCodes');
 const { validateEmail, generateToken, sendMail, addUserToMailList } = require('../helpers/utils');
+const SECRET = process.env.JWT_SECRET;
 const { URL } = require('../helpers/constants');
 
 
@@ -25,12 +27,25 @@ const sendVerificationEmail = (user, res) => {
 		template: 'emailVerification',
 		params: {link},
 		ifSuccess: ()=>{
-			res.json(user)
+			res.json(user.email)
 		},
 		ifError: ()=>{
 			res.status(400).json(new EmailError())
 		}
 	})
+}
+
+const generateAuthToken = (res, user) => {
+	const token = jwt.sign(user.email,
+        SECRET,
+        { expiresIn: '7d' }
+    );
+    res.json({
+        success: true,
+        message: 'Authentication successful!',
+        token: token,
+        user
+    });
 }
 
 const handleSignIn = (req, res, db, bcrypt) => {
@@ -52,8 +67,9 @@ const handleSignIn = (req, res, db, bcrypt) => {
 					if (isValid) {
 						return db.select('*').from('users')
 							.where('email', '=', email)
-							.then(user => {
-								res.json(user[0])
+							.then(userData => {
+								const user = userData[0];
+						        generateAuthToken(res, user)
 							})
 							.catch(err => res.status(400).json(new ServerError()))
 					} else {
@@ -181,7 +197,7 @@ const completeRegistration = (req, res, db, bcrypt) => {
 									}
 								})
 								addUserToMailList(user.email)
-								res.json(user)
+								generateAuthToken(res, user)
 							})
 							.catch(() => {
 								res.status(400).json(new ServerError())

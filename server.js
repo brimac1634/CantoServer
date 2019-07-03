@@ -2,7 +2,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
-const jwt = require('jsonwebtoken');
 const schdule = require('node-schedule');
 const https = require('https');
 require('dotenv').config();
@@ -25,6 +24,9 @@ const { configureDB } = require('./helpers/utils');
 const db = configureDB()
 
 const app = express();
+app.use(bodyParser.urlencoded({
+    extended: true
+  }));
 app.use(bodyParser.json());
 app.use(cors());
 
@@ -32,13 +34,13 @@ app.post('/contact-us', (req, res) => { contact.handleContact(req, res, db) })
 
 app.post('/search', (req, res) => { search.handleSearch(req, res, db) })
 
-app.post('/entryid', (req, res) => { search.handleEntryID(req, res, db) })
+app.post('/entryid', middleware.checkToken, (req, res) => { search.handleEntryID(req, res, db) })
 
 app.post('/stream-audio', (req, res) => { stream.handleStream(req, res) })
 
-app.post('/recent/add', (req, res) => { search.addRecent(req, res, db) })
+app.post('/recent/add', middleware.checkToken, (req, res) => { search.addRecent(req, res, db) })
 
-app.post('/search/recent', (req, res) => { search.getRecent(req, res, db) })
+app.post('/search/recent', middleware.checkToken, (req, res) => { search.getRecent(req, res, db) })
 
 app.post('/signin', (req, res) => { login.handleSignIn(req, res, db, bcrypt) })
 
@@ -48,13 +50,13 @@ app.post('/register/complete', (req, res) => { login.completeRegistration(req, r
 
 app.post('/api/v1/auth/facebook', (req, res) => { login.handleFB(req, res, db) })
 
-app.post('/delete-account', (req, res) => { login.deleteAccount(req, res, db, bcrypt) })
+app.post('/delete-account', middleware.checkToken, (req, res) => { login.deleteAccount(req, res, db, bcrypt) })
 
-app.post('/favorites/toggle', (req, res) => { favorites.toggleFavorite(req, res, db) })
+app.post('/favorites/toggle', middleware.checkToken, (req, res) => { favorites.toggleFavorite(req, res, db) })
 
-app.post('/favorites/isFavorited', (req, res) => { favorites.checkIfFavorited(req, res, db)})
+app.post('/favorites/isFavorited', middleware.checkToken, (req, res) => { favorites.checkIfFavorited(req, res, db)})
 
-app.post('/search/favorites', (req, res) => { favorites.getFavorites(req, res, db) })
+app.post('/search/favorites', middleware.checkToken, (req, res) => { favorites.getFavorites(req, res, db) })
 
 app.get('/word-of-the-day', (req, res) => { wordOfTheDay.getWordOfDay(res, db)})
 

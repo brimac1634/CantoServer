@@ -25,6 +25,26 @@ class ValidationError extends CustomError {
   }
 }
 
+class InvalidToken extends CustomError {
+  constructor(message = 'The token supplied is not valid.') {
+    super(message)
+    this.name = 'InvalidToken'
+    this.title = 'Invalid Token'
+    this.message = message
+    this.toJSON()
+  }
+}
+
+class NoTokenFound extends CustomError {
+  constructor(message = 'No token was received.') {
+    super(message)
+    this.name = 'NoTokenFound'
+    this.title = 'No Token'
+    this.message = message
+    this.toJSON()
+  }
+}
+
 class AudioNotFound extends CustomError {
   constructor(message = 'The audio clip for this entry could not be found.') {
     super(message)
@@ -114,5 +134,7 @@ module.exports = {
   PasswordTokenExpired,
   EmailNotRegistered,
   ServerError,
-  EmailError
+  EmailError,
+  InvalidToken,
+  NoTokenFound
 }
