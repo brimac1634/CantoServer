@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 const schdule = require('node-schedule');
 const https = require('https');
 require('dotenv').config();
@@ -12,6 +13,7 @@ setInterval(function() {
     https.get(URL);
 }, 300000);
 
+const middleware = require('./middleware');
 const favorites = require('./controllers/favorites');
 const login = require('./controllers/login');
 const search = require('./controllers/search');
