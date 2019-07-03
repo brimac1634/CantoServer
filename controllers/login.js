@@ -36,7 +36,14 @@ const sendVerificationEmail = (user, res) => {
 }
 
 const generateAuthToken = (res, user) => {
-	const token = jwt.sign({userEmail: user.email},
+	const { email, id, name } = user;
+	const token = jwt.sign({
+			user: {
+				userEmail: email,
+				userID: id,
+				userName: name
+			}
+		},
         SECRET,
         {expiresIn: '7d'}
     );
