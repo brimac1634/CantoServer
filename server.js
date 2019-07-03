@@ -36,7 +36,7 @@ app.post('/contact-us', (req, res) => { contact.handleContact(req, res, db) })
 
 app.post('/search', (req, res) => { search.handleSearch(req, res, db) })
 
-app.post('/entryid', middleware.checkToken, (req, res) => { search.handleEntryID(req, res, db) })
+app.post('/entryid', (req, res) => { search.handleEntryID(req, res, db) })
 
 app.post('/stream-audio', (req, res) => { stream.handleStream(req, res) })
 
