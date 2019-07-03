@@ -30,6 +30,8 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json());
 app.use(cors());
 
+app.get('/', middleware.checkToken, (req, res) => { res.json({success: true})});
+
 app.post('/contact-us', (req, res) => { contact.handleContact(req, res, db) })
 
 app.post('/search', (req, res) => { search.handleSearch(req, res, db) })
