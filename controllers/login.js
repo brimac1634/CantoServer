@@ -36,9 +36,9 @@ const sendVerificationEmail = (user, res) => {
 }
 
 const generateAuthToken = (res, user) => {
-	const token = jwt.sign(user.email,
+	const token = jwt.sign({userEmail: user.email},
         SECRET,
-        { expiresIn: '7d' }
+        {expiresIn: '7d'}
     );
     res.json({
         success: true,
@@ -71,7 +71,10 @@ const handleSignIn = (req, res, db, bcrypt) => {
 								const user = userData[0];
 						        generateAuthToken(res, user)
 							})
-							.catch(err => res.status(400).json(new ServerError()))
+							.catch(err => {
+								console.log(err)
+								res.status(400).json(new ServerError())
+							})
 					} else {
 						throw new ValidationError()
 					}
