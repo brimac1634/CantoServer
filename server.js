@@ -13,9 +13,6 @@ setInterval(function() {
     https.get(URL);
 }, 300000);
 
-const wodScheduler = schedule.scheduleJob('20 * * * *', function(){
-  console.log('The answer to life, the universe, and everything!');
-});
 
 const middleware = require('./middleware');
 const favorites = require('./controllers/favorites');
@@ -27,6 +24,12 @@ const stream = require('./controllers/stream');
 
 const { configureDB } = require('./helpers/utils');
 const db = configureDB()
+
+const { scheduledJob } = require('./scheduled_scripts/scheduledJob');
+const dailyScheduler = schedule.scheduleJob('* 1 * * *', function(){
+	console.log('new cron')
+    scheduledJob(db)
+});
 
 const app = express();
 app.use(bodyParser.urlencoded({
