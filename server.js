@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
 const schdule = require('node-schedule');
 const https = require('https');
+const schedule = require('node-schedule');
 require('dotenv').config();
 
 const { SERVERURL, URL } = require('./helpers/constants');
@@ -11,6 +12,10 @@ setInterval(function() {
     https.get(SERVERURL);
     https.get(URL);
 }, 300000);
+
+const wodScheduler = schedule.scheduleJob('20 * * * *', function(){
+  console.log('The answer to life, the universe, and everything!');
+});
 
 const middleware = require('./middleware');
 const favorites = require('./controllers/favorites');
