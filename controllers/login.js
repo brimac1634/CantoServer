@@ -231,7 +231,7 @@ const completeRegistration = (req, res, db, bcrypt) => {
 
 const handleFB = (req, res, db) => {
 	const { accessToken, id, email, name } = req.body;
-	console.log(accessToken)
+	console.log(id)
 	https.get(`https://graph.facebook.com/me?access_token=${accessToken}`, (resp) => {
 	    let data = '';
   
@@ -259,11 +259,12 @@ const checkFBUser = (res, db, email, name) => {
 	db.select('*').from('users')
 		.where('email', '=', email)
 		.then(data => {
-			console.log('data', email, name)
+			console.log('data', data)
 			if (data[0]) {
 				const user = data[0];
 				generateAuthToken(res, user)
 			} else {
+				console.log('made it here')
 				const { token } = generateToken()
 				const hash = bcrypt.hashSync(token);
 				db.transaction(trx => {
@@ -274,6 +275,7 @@ const checkFBUser = (res, db, email, name) => {
 					.into('login')
 					.returning('email')
 					.then(loginEmail => {
+						console.log('login email', loginEmail)
 						return trx('users')
 						.returning('*')
 						.insert({
