@@ -297,50 +297,45 @@ const checkFBUser = (res, db, bcrypt, email, name) => {
 		})
 }
 
-const deleteAccount = (req, res, db, bcrypt) => {
-	const { userEmail, password } = req.body;
+const deleteAccount = (req, res, db) => {
+	const { userEmail } = req.body;
 	db.select('email', 'hash').from('login')
 		.where('email', '=', userEmail)
 		.then(data => {
 			if (data[0].email) {
-				const isValid = bcrypt.compareSync(password, data[0].hash)
-				if (isValid) {
-					db.transaction(trx => {
-						return trx.select('*').from('login')
-						.where('email', '=', userEmail)
-						.returning('email')
+				db.transaction(trx => {
+					return trx.select('*').from('login')
+					.where('email', '=', userEmail)
+					.returning('email')
+					.del()
+					.then(email => {
+						return trx.select('*').from('users')
+						.where('email', '=', email[0])
+						.returning('id')
 						.del()
-						.then(email => {
-							return trx.select('*').from('users')
-							.where('email', '=', email[0])
-							.returning('id')
+						.then(userID => {
+							return trx.select('*').from('favorites')
+							.where('user_id', '=', userID[0])
+							.returning('user_id')
 							.del()
-							.then(userID => {
-								return trx.select('*').from('favorites')
+							.then(() => {
+								return trx.select('*').from('recents')
 								.where('user_id', '=', userID[0])
 								.returning('user_id')
 								.del()
 								.then(() => {
-									return trx.select('*').from('recents')
-									.where('user_id', '=', userID[0])
-									.returning('user_id')
-									.del()
-									.then(() => {
-										console.log(`account deleted: ${userEmail}`)
-										res.json('account deleted')
-									})
+									console.log(`account deleted: ${userEmail}`)
+									res.json('account deleted')
 								})
 							})
-							.catch(() => {
-								res.status(400).json(new ServerError())
-							})
 						})
-						.then(trx.commit)
-						.catch(trx.rollback)
+						.catch(() => {
+							res.status(400).json(new ServerError())
+						})
 					})
-				} else {
-					throw new ValidationError()
-				}
+					.then(trx.commit)
+					.catch(trx.rollback)
+				})
 			} else {
 				throw new EmailNotRegistered()
 			}

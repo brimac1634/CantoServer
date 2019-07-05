@@ -60,7 +60,7 @@ app.post('/register/complete', (req, res) => { login.completeRegistration(req, r
 
 app.post('/api/v1/auth/facebook', (req, res) => { login.handleFB(req, res, db, bcrypt) })
 
-app.post('/delete-account', middleware.checkToken, (req, res) => { login.deleteAccount(req, res, db, bcrypt) })
+app.post('/delete-account', middleware.checkToken, (req, res) => { login.deleteAccount(req, res, db) })
 
 app.post('/favorites/toggle', middleware.checkToken, (req, res) => { favorites.toggleFavorite(req, res, db) })
 
