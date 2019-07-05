@@ -37,6 +37,21 @@ const sendVerificationEmail = (user, res) => {
 	})
 }
 
+const registrationCompleteEmail = (user) => {
+	sendMail({
+		fromEmail: 'no-reply@cantotalk.com',
+		toEmail: user.email,
+		subject: 'CantoTalk - Verification Complete',
+		template: 'verificationComplete',
+		ifSuccess: ()=>{
+			console.log(`new user confirmed: ${user}`)
+		},
+		ifError: ()=>{
+			console.log(`failed to send email confirmation: ${user}`)
+		}
+	})
+}
+
 const generateAuthToken = (res, user) => {
 	const { email, id, name } = user;
 	const token = jwt.sign({
@@ -196,18 +211,7 @@ const completeRegistration = (req, res, db, bcrypt) => {
 							.returning('*')
 							.then(userData => {
 								const user = userData[0];
-								sendMail({
-									fromEmail: 'no-reply@cantotalk.com',
-									toEmail: user.email,
-									subject: 'CantoTalk - Verification Complete',
-									template: 'verificationComplete',
-									ifSuccess: ()=>{
-										console.log(`new user confirmed: ${user}`)
-									},
-									ifError: ()=>{
-										console.log(`failed to send email confirmation: ${user}`)
-									}
-								})
+								registrationCompleteEmail(user)
 								addUserToMailList(user.email)
 								generateAuthToken(res, user)
 							})
@@ -281,6 +285,7 @@ const checkFBUser = (res, db, bcrypt, email, name) => {
 						})
 						.then(userData => {
 							const user = userData[0];
+							registrationCompleteEmail(user)
 							addUserToMailList(user.email)
 							generateAuthToken(res, user)
 						})

@@ -15,6 +15,7 @@ setInterval(function() {
 
 
 const middleware = require('./middleware');
+const entries = require('./controllers/entries');
 const favorites = require('./controllers/favorites');
 const login = require('./controllers/login');
 const search = require('./controllers/search');
@@ -39,6 +40,8 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.get('/', middleware.checkToken, (req, res) => { login.checkUser(req, res, db) });
+
+app.post('/add-entry', middleware.checkToken, (req, res) => { entries.addEntry(req, res, db) })
 
 app.post('/contact-us', (req, res) => { contact.handleContact(req, res, db) })
 

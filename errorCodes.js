@@ -135,6 +135,26 @@ class PasswordTokenExpired extends CustomError {
   }
 }
 
+class EntryNotAdded extends CustomError {
+  constructor(message = 'The new entry could not be added.') {
+    super(message)
+    this.name = 'EntryNotAdded'
+    this.title = 'Entry not added'
+    this.message = message
+    this.toJSON()
+  }
+}
+
+class AdminOnly extends CustomError {
+  constructor(message = 'The action is only available for admin users.') {
+    super(message)
+    this.name = 'AdminOnly'
+    this.title = 'Admin Only'
+    this.message = message
+    this.toJSON()
+  }
+}
+
 module.exports = {
   ValidationError,
   AudioNotFound,
@@ -147,5 +167,7 @@ module.exports = {
   EmailError,
   InvalidToken,
   NoTokenFound,
-  FacebookTokenError
+  FacebookTokenError,
+  EntryNotAdded,
+  AdminOnly
 }
