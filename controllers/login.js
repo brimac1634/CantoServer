@@ -229,9 +229,8 @@ const completeRegistration = (req, res, db, bcrypt) => {
 		})
 }
 
-const handleFB = (req, res, db) => {
+const handleFB = (req, res, db, bcrypt) => {
 	const { accessToken, id, email, name } = req.body;
-	console.log(id)
 	https.get(`https://graph.facebook.com/me?access_token=${accessToken}`, (resp) => {
 	    let data = '';
   
@@ -242,7 +241,7 @@ const handleFB = (req, res, db) => {
 	    resp.on('end', () => {
 	    	const fbData = JSON.parse(data)
 	        if (fbData.id === id) {
-	        	checkFBUser(res, db, email, name)
+	        	checkFBUser(res, db, bcrypt, email, name)
 	        } else {
 	        	res.status(400).json(new FacebookTokenError())
 	        }
@@ -254,28 +253,25 @@ const handleFB = (req, res, db) => {
 	});
 }
 
-const checkFBUser = (res, db, email, name) => {
+const checkFBUser = (res, db, bcrypt, email, name) => {
 	email = email.toLowerCase()
 	db.select('*').from('users')
 		.where('email', '=', email)
 		.then(data => {
-			console.log('data', data)
 			if (data[0]) {
 				const user = data[0];
 				generateAuthToken(res, user)
 			} else {
-				console.log('made it here')
 				const { token } = generateToken()
 				const hash = bcrypt.hashSync(token);
 				db.transaction(trx => {
 					trx.insert({
-						hash: hash,
-						email: email
+						hash,
+						email
 					})
 					.into('login')
 					.returning('email')
 					.then(loginEmail => {
-						console.log('login email', loginEmail)
 						return trx('users')
 						.returning('*')
 						.insert({
@@ -284,15 +280,11 @@ const checkFBUser = (res, db, email, name) => {
 							joined: new Date()
 						})
 						.then(userData => {
-							console.log(userData)
 							const user = userData[0];
 							addUserToMailList(user.email)
 							generateAuthToken(res, user)
 						})
-						.catch(err => {
-							console.log('over here', err)
-							res.status(400).json(new ServerError())
-						})
+						.catch(() => res.status(400).json(new ServerError()))
 					})
 					.then(trx.commit)
 					.catch(trx.rollback)
@@ -300,7 +292,6 @@ const checkFBUser = (res, db, email, name) => {
 			}
 		})
 		.catch(err => {
-			console.log('problem is here')
 			const error = err.isCustom ? err : new ServerError()
 			res.status(400).json(error)
 		})
