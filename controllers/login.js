@@ -231,7 +231,7 @@ const completeRegistration = (req, res, db, bcrypt) => {
 
 const handleFB = (req, res, db) => {
 	const { accessToken, id, email, name } = req.body;
-
+	console.log(accessToken)
 	https.get(`https://graph.facebook.com/me?access_token=${accessToken}`, (resp) => {
 	    let data = '';
   
@@ -259,13 +259,12 @@ const checkFBUser = (res, db, email, name) => {
 	db.select('*').from('users')
 		.where('email', '=', email)
 		.then(data => {
+			console.log('data', email, name)
 			if (data[0]) {
 				const user = data[0];
 				generateAuthToken(res, user)
 			} else {
-				console.log('non registered')
 				const { token } = generateToken()
-				console.log('token generated', token)
 				const hash = bcrypt.hashSync(token);
 				db.transaction(trx => {
 					trx.insert({
@@ -283,11 +282,13 @@ const checkFBUser = (res, db, email, name) => {
 							joined: new Date()
 						})
 						.then(userData => {
+							console.log(userData)
 							const user = userData[0];
 							addUserToMailList(user.email)
 							generateAuthToken(res, user)
 						})
-						.catch(() => {
+						.catch(err => {
+							console.log('over here', err)
 							res.status(400).json(new ServerError())
 						})
 					})
@@ -297,6 +298,7 @@ const checkFBUser = (res, db, email, name) => {
 			}
 		})
 		.catch(err => {
+			console.log('problem is here')
 			const error = err.isCustom ? err : new ServerError()
 			res.status(400).json(error)
 		})
