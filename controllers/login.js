@@ -43,7 +43,7 @@ const generateAuthToken = (res, user) => {
 			user: {
 				userEmail: email,
 				userID: id,
-				userName: name
+				userName: name 
 			}
 		},
         SECRET,
@@ -346,6 +346,26 @@ const deleteAccount = (req, res, db) => {
 		})
 }
 
+const checkUser = (req, res, db) => {
+	const { user, user: { userEmail } } = req.decoded
+	db.select('email').from('users')
+		.where('email', '=', userEmail)
+		.then(data => {
+			if (data[0]) {
+				res.json(user)
+			} else {
+				//user no longer exists
+				throw new UserNotFound()
+			}
+		})
+		.catch(err => {
+			const error = err.isCustom ? err : new ServerError()
+			res.status(400).json(error)
+		})
+
+	
+}
+
 
 
 module.exports = {
@@ -353,5 +373,6 @@ module.exports = {
 	handleRegister,
 	completeRegistration,
 	handleFB,
-	deleteAccount
+	deleteAccount,
+	checkUser
 }
