@@ -25,6 +25,16 @@ class ValidationError extends CustomError {
   }
 }
 
+class FacebookTokenError extends CustomError {
+  constructor(message = 'The facebook token is either expired or invalid. Please try again.') {
+    super(message)
+    this.name = 'FacebookTokenError'
+    this.title = 'Invalid Facebook Token'
+    this.message = message
+    this.toJSON()
+  }
+}
+
 class InvalidToken extends CustomError {
   constructor(message = 'The token supplied is not valid.') {
     super(message)
@@ -136,5 +146,6 @@ module.exports = {
   ServerError,
   EmailError,
   InvalidToken,
-  NoTokenFound
+  NoTokenFound,
+  FacebookTokenError
 }

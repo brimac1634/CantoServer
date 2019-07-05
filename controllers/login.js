@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const https = require('https');
 const { 
 	ServerError, 
 	NameNotProvided,
@@ -6,7 +7,8 @@ const {
 	PasswordTokenExpired,
 	EmailNotRegistered, 
 	UserNotFound,
-	RegistrationIncomplete 
+	RegistrationIncomplete,
+	FacebookTokenError 
 } = require('../errorCodes');
 const { validateEmail, generateToken, sendMail, addUserToMailList } = require('../helpers/utils');
 const SECRET = process.env.JWT_SECRET;
@@ -228,18 +230,70 @@ const completeRegistration = (req, res, db, bcrypt) => {
 }
 
 const handleFB = (req, res, db) => {
-	let { name, email, userID } = req.body;
+	const { accessToken, id, email, name } = req.body;
+
+	https.get(`https://graph.facebook.com/me?access_token=${accessToken}`, (resp) => {
+	    let data = '';
+  
+	    resp.on('data', (chunk) => {
+	        data += chunk;
+	    });
+  
+	    resp.on('end', () => {
+	    	const fbData = JSON.parse(data)
+	        if (fbData.id === id) {
+	        	checkFBUser(res, db, email, name)
+	        } else {
+	        	res.status(400).json(new FacebookTokenError())
+	        }
+	    });
+
+	}).on("error", (err) => {
+	    console.log("Error: " + err.message);
+	    res.status(400).json(new ServerError())
+	});
+}
+
+const checkFBUser = (res, db, email, name) => {
 	email = email.toLowerCase()
 	db.select('*').from('users')
 		.where('email', '=', email)
 		.then(data => {
-			console.log('here', data)
 			if (data[0]) {
-				//email registered
-				console.log(data[0])
+				const user = data[0];
+				generateAuthToken(res, user)
 			} else {
-				//email not registered
 				console.log('non registered')
+				const { token } = generateToken()
+				console.log('token generated', token)
+				const hash = bcrypt.hashSync(token);
+				db.transaction(trx => {
+					trx.insert({
+						hash: hash,
+						email: email
+					})
+					.into('login')
+					.returning('email')
+					.then(loginEmail => {
+						return trx('users')
+						.returning('*')
+						.insert({
+							name: name,
+							email: loginEmail[0],
+							joined: new Date()
+						})
+						.then(userData => {
+							const user = userData[0];
+							addUserToMailList(user.email)
+							generateAuthToken(res, user)
+						})
+						.catch(() => {
+							res.status(400).json(new ServerError())
+						})
+					})
+					.then(trx.commit)
+					.catch(trx.rollback)
+				})
 			}
 		})
 		.catch(err => {
