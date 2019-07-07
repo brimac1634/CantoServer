@@ -1,8 +1,8 @@
-const { EntryNotAdded, AdminOnly } = require('../errorCodes');
+const { EntryNotAdded, AdminOnly, ServerError } = require('../errorCodes');
 
 const addEntry = (req, res, db) => {
+	const { userEmail } = req.decoded.user;
 	const { 
-		decoded,
 		canto_word,
 	    jyutping,
 	    classifier,
@@ -13,24 +13,30 @@ const addEntry = (req, res, db) => {
 	    english_sentence
 	} = req.body;
 
-	if (decoded.userEmail === process.env.ADMIN_USER) {
-		db('entries')
-			.returning('*')
-			.insert({
-				canto_word,
-			    jyutping,
-			    classifier,
-			    english_word,
-			    mandarin_word,
-			    canto_sentence,
-			    jyutping_sentence,
-			    english_sentence 
+	if (userEmail === process.env.ADMIN_USER) {
+		db('entries').count('entry_id')
+			.then(data => {
+				const newEntryID = Number(data[0].count) + 1;
+				return db('entries')
+					.returning('*')
+					.insert({
+						entry_id: newEntryID,
+						canto_word,
+					    jyutping,
+					    classifier,
+					    english_word,
+					    mandarin_word,
+					    canto_sentence,
+					    jyutping_sentence,
+					    english_sentence 
+					})
+					.then(entry => res.json(entry[0]))
+					.catch(()=>res.status(400).json(new EntryNotAdded()))
 			})
-			.then(entry => res.json(entry[0]))
-			.catch(() => res.status(400).json(new EntryNotAdded()))
-		} else {
-			res.status(400).json(new AdminOnly())
-		}
+			.catch(()=>res.status(400).json(new ServerError()))
+	} else {
+		res.status(400).json(new AdminOnly())
+	}
 }
 
 module.exports = {
