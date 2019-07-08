@@ -21,13 +21,11 @@ const searchDecks = (req, res, db) => {
 		.andWhere(function() {
 			this.where('user_id', 0).orWhere('user_id', userID ? userID : null).orWhere('public', '1')
 		})
+		.orderBy('users', 'desc')
 		.then(data => {
 			res.json(data)
 		})
-		.catch(err => {
-			console.log(err)
-			res.status(400).json(new ServerError())
-		})
+		.catch(() => res.status(400).json(new ServerError()))
 }
 
 
