@@ -19,6 +19,7 @@ const entries = require('./controllers/entries');
 const favorites = require('./controllers/favorites');
 const login = require('./controllers/login');
 const search = require('./controllers/search');
+const learn = require('./controllers/learn');
 const contact = require('./controllers/contact');
 const wordOfTheDay = require('./controllers/wordOfTheDay');
 const stream = require('./controllers/stream');
@@ -73,9 +74,9 @@ app.post('/search/favorites', middleware.checkToken, (req, res) => { favorites.g
 
 app.get('/word-of-the-day', (req, res) => { wordOfTheDay.getWordOfDay(res, db)})
 
-app.get('/learn', (req, res) => {
-	const {id} = req.params;
-})
+app.post('/get-decks', (req, res) => { learn.getDecks(req, res, db)})
+
+app.post('/search-decks', (req, res) => { learn.searchDecks(req, res, db)})
 
 app.listen(process.env.PORT || 3000, () => {
 	console.log(`app is running on port ${process.env.PORT}`);
