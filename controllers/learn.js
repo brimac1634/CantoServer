@@ -3,7 +3,7 @@ const { ServerError } = require('../errorCodes')
 const getDecks = (req, res, db) => {
 	const { userID } = req.body;
 	db.select('*').from('decks')
-		.where('user_id', userID)
+		.where('user_id', userID ? userID : null)
 		.orWhere('user_id', 0)
 		.then(data => {
 			res.json(data)

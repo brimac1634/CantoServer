@@ -29,7 +29,6 @@ const db = configureDB()
 
 const { scheduledJob } = require('./scheduled_scripts/scheduledJob');
 const dailyScheduler = schedule.scheduleJob('* 1 * * *', function(){
-	console.log('new cron')
     scheduledJob(db)
 });
 
@@ -77,6 +76,10 @@ app.get('/word-of-the-day', (req, res) => { wordOfTheDay.getWordOfDay(res, db)})
 app.post('/get-decks', (req, res) => { learn.getDecks(req, res, db)})
 
 app.post('/search-decks', (req, res) => { learn.searchDecks(req, res, db)})
+
+app.post('/get-decks-id', middleware.checkToken, (req, res) => { learn.getDecks(req, res, db)})
+
+app.post('/search-decks-id', middleware.checkToken, (req, res) => { learn.searchDecks(req, res, db)})
 
 app.listen(process.env.PORT || 3000, () => {
 	console.log(`app is running on port ${process.env.PORT}`);
