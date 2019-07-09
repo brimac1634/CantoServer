@@ -5,10 +5,16 @@ const getDecks = (req, res, db) => {
 	db.select('*').from('decks')
 		.where('user_id', userID ? userID : null)
 		.orWhere('user_id', 0)
+		.orWhere(function() {
+			this.where('public', '1').orderBy('users', 'desc').limit(10)
+		})
 		.then(data => {
 			res.json(data)
 		})
-		.catch(() => res.status(400).json(new ServerError()))
+		.catch(err => {
+			console.log(err)
+			res.status(400).json(new ServerError())
+		})
 }
 
 const searchDecks = (req, res, db) => {
