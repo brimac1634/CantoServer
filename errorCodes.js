@@ -15,6 +15,17 @@ class CustomError extends Error {
   }
 }
 
+
+class NoDeckFound extends CustomError {
+  constructor(message = 'The deck could not be found.') {
+    super(message)
+    this.name = 'NoDeckFound'
+    this.title = 'No Deck Found'
+    this.message = message
+    this.toJSON()
+  }
+}
+
 class ValidationError extends CustomError {
   constructor(message = 'The information you have entered does not match our records.') {
     super(message)
@@ -169,5 +180,6 @@ module.exports = {
   NoTokenFound,
   FacebookTokenError,
   EntryNotAdded,
-  AdminOnly
+  AdminOnly,
+  NoDeckFound
 }
