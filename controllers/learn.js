@@ -48,79 +48,53 @@ const newDeck = (req, res, db) => {
 		.into('decks')
 		.returning('deck_id')
 		.then(deckID => {
-			console.log(deckID)
 			const deck_id = deckID[0];
-			entry_ids.forEach(entry_id => {
-				return trx('deck_entries')
-				.returning('*')
-				.insert({
-					deck_id,
-					entry_id,
-				})
-				.catch(err=>{
-					console.log(err)
-					res.status(400).json(new EntryNotAdded())
-				})
+			const data = entry_ids.map(entry_id => {
+				return { deck_id, entry_id }
 			})
-			res.json('success')
+			return trx('deck_entries')
+			.returning('*')
+			.insert(data)
+			.then(()=>res.json('success'))
+			.catch(()=>res.status(400).json(new EntryNotAdded()))
 		})
 		.then(trx.commit)
 		.catch(trx.rollback)
 	})
 	.catch(err => {
-		console.log(err)
 		const error = err.isCustom ? err : new ServerError()
 		res.status(400).json(error)
 	})
 }
 
-// const newDeck = (req, res, db) => {
-// 	const { name, user_id, is_public, is_official, tags } = req.body;
-// 	db('decks')
-// 		.returning('*')
-// 		.insert({
-// 			name,
-// 			user_id: is_official ? 0 : user_id,
-// 			is_public: is_official ? '1' : is_public,
-// 			tags,
-// 			date_created: new Date(),
-// 			users: is_official ? 100000 : 1 
-// 		})
-// 		.then(deck => res.json(deck[0]))
-// 		.catch(err=>{
-// 			console.log(err)
-// 			res.status(400).json(new ServerError())
-// 		})
-// }
-
-// const addToDeck = (req, res, db) => {
-// 	const { deck_id, entry_ids } = req.body;
-// 	db.select('deck_id').from('decks')
-// 		.where('deck_id', deck_id)
-// 		.then(deck => {
-// 			if (deck[0]) {
-// 				entry_ids.forEach(entry_id => {
-// 					return db('deck_entries')
-// 					.returning('*')
-// 					.insert({
-// 						deck_id,
-// 						entry_id,
-// 					})
-// 					.catch(err=>{
-// 						console.log(err)
-// 						res.status(400).json(new EntryNotAdded())
-// 					})
-// 				})
-// 				res.json('success')
-// 			} else {
-// 				throw new NoDeckFound()
-// 			}
-// 		})
-// 		.catch(err => {
-// 			const error = err.isCustom ? err : new ServerError()
-// 			res.status(400).json(error)
-// 		})
-// }
+const addToDeck = (req, res, db) => {
+	const { deck_id, entry_ids } = req.body;
+	db.select('deck_id').from('decks')
+		.where('deck_id', deck_id)
+		.then(deck => {
+			if (deck[0]) {
+				entry_ids.forEach(entry_id => {
+					return db('deck_entries')
+					.returning('*')
+					.insert({
+						deck_id,
+						entry_id,
+					})
+					.catch(err=>{
+						console.log(err)
+						res.status(400).json(new EntryNotAdded())
+					})
+				})
+				res.json('success')
+			} else {
+				throw new NoDeckFound()
+			}
+		})
+		.catch(err => {
+			const error = err.isCustom ? err : new ServerError()
+			res.status(400).json(error)
+		})
+}
 
 
 module.exports = {
