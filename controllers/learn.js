@@ -6,7 +6,7 @@ const getDecks = (req, res, db) => {
 		.where('user_id', userID ? userID : null)
 		.orWhere('user_id', 0)
 		.orWhere(function() {
-			this.where('public', '1').orderBy('users', 'desc').limit(10)
+			this.where('is_public', '1').orderBy('users', 'desc').limit(10)
 		})
 		.then(data => {
 			res.json(data)
@@ -25,7 +25,7 @@ const searchDecks = (req, res, db) => {
 			this.whereRaw('tags LIKE ?', `%${search}%`).orWhereRaw('name LIKE ?', `%${search}%`)
 		})
 		.andWhere(function() {
-			this.where('user_id', 0).orWhere('user_id', userID ? userID : null).orWhere('public', '1')
+			this.where('user_id', 0).orWhere('user_id', userID ? userID : null).orWhere('is_public', '1')
 		})
 		.orderBy('users', 'desc')
 		.then(data => {
@@ -71,7 +71,7 @@ const addToDeck = (req, res, db) => {
 						res.status(400).json(new EntryNotAdded())
 					})
 				})
-				console.log('done')
+				res.json('success')
 			} else {
 				throw new NoDeckFound()
 			}
