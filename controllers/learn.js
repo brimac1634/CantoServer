@@ -62,6 +62,7 @@ const newDeck = (req, res, db) => {
 		.catch(trx.rollback)
 	})
 	.catch(err => {
+		console.log(err)
 		const error = err.isCustom ? err : new ServerError()
 		res.status(400).json(error)
 	})
