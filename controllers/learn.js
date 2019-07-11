@@ -97,9 +97,21 @@ const addToDeck = (req, res, db) => {
 		})
 }
 
+const getDeckEntries = (req, res, db) => {
+	const { deck_id } = req.body;
+	db.select('*').from('entries')
+		.innerJoin('deck_entries', 'deck_entries.entry_id', 'entries.entry_id')
+		.where('deck_entries.deck_id', deck_id)
+		.then(entries => {
+			res.json(entries)
+		})
+		.catch(() => res.status(400).json(new ServerError()))
+}
+
 
 module.exports = {
 	getDecks,
 	searchDecks,
 	newDeck,
+	getDeckEntries
 }
