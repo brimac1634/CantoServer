@@ -73,6 +73,8 @@ app.post('/search/favorites', middleware.checkToken, (req, res) => { favorites.g
 
 app.get('/word-of-the-day', (req, res) => { wordOfTheDay.getWordOfDay(res, db)})
 
+app.post('/get-deck-by-id', (req, res) => { learn.getDeckByID(req, res, db)})
+
 app.get('/get-decks', (req, res) => { learn.getDecks(req, res, db)})
 
 app.post('/search-decks', (req, res) => { learn.searchDecks(req, res, db)})

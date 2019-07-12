@@ -17,6 +17,19 @@ const getDecks = (req, res, db) => {
 		})
 }
 
+const getDeckByID = (req, res, db) => {
+	const { deck_id } = req.body;
+	db.select('*').from('decks')
+		.where('deck_id', deck_id)
+		.then(data => {
+			res.json(data[0])
+		})
+		.catch(err => {
+			console.log(err)
+			res.status(400).json(new ServerError())
+		})
+}
+
 const searchDecks = (req, res, db) => {
 	const { userID, key } = req.body;
 	const search = key.toLowerCase()
@@ -111,6 +124,7 @@ const getDeckEntries = (req, res, db) => {
 
 module.exports = {
 	getDecks,
+	getDeckByID,
 	searchDecks,
 	newDeck,
 	getDeckEntries
