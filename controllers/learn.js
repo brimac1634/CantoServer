@@ -36,7 +36,7 @@ const searchDecks = (req, res, db) => {
 	const search = key.toLowerCase()
 	db.select('*').from('decks')
 		.where(function() {
-			this.whereRaw('tags LIKE ?', `%${search}%`).orWhereRaw('name LIKE ?', `%${search}%`)
+			this.whereRaw('tags LIKE ?', `%${search}%`).orWhereRaw('deck_name LIKE ?', `%${search}%`)
 		})
 		.andWhere(function() {
 			this.where('user_id', 0).orWhere('user_id', userID ? userID : null).orWhere('is_public', '1')
@@ -49,13 +49,14 @@ const searchDecks = (req, res, db) => {
 }
 
 const newDeck = (req, res, db) => {
-	const { name, user_id, is_public, is_official, tags, entry_ids } = req.body;
+	const { deck_name, user_id, is_public, is_official, tags, entry_ids, description } = req.body;
 	db.transaction(trx => {
 		trx.insert({
-			name,
+			deck_name,
 			user_id: is_official ? 0 : user_id,
 			is_public: is_official ? '1' : is_public,
 			tags,
+			description,
 			date_created: new Date(),
 			users: is_official ? 100000 : 1 
 		})
