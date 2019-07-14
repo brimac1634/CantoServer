@@ -87,8 +87,6 @@ app.post('/new-deck', middleware.checkToken, (req, res) => { learn.newDeck(req, 
 
 app.post('/deck-entries', (req, res) => { learn.getDeckEntries(req, res, db)})
 
-app.post('/add-to-deck', middleware.checkToken, (req, res) => { learn.addToDeck(req, res, db)})
-
 app.listen(process.env.PORT || 3000, () => {
 	console.log(`app is running on port ${process.env.PORT}`);
 });

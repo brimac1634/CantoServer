@@ -49,67 +49,92 @@ const searchDecks = (req, res, db) => {
 }
 
 const newDeck = (req, res, db) => {
-	const { deck_name, user_id, is_public, is_official, tags, entry_ids, description } = req.body;
-	db.transaction(trx => {
-		trx.insert({
-			deck_name,
-			user_id: is_official ? 0 : user_id,
-			is_public: is_official ? '1' : is_public,
-			tags,
-			description,
-			date_created: new Date(),
-			users: is_official ? 100000 : 1 
-		})
-		.into('decks')
-		.returning('deck_id')
-		.then(deckID => {
-			const deck_id = deckID[0];
-			const data = entry_ids.map(entry_id => {
-				return { deck_id, entry_id }
-			})
-			return trx('deck_entries')
-			.returning('*')
-			.insert(data)
-			.then(()=>res.json('success'))
-			.catch(()=>res.status(400).json(new EntryNotAdded()))
-		})
-		.then(trx.commit)
-		.catch(trx.rollback)
-	})
-	.catch(err => {
-		console.log(err)
-		const error = err.isCustom ? err : new ServerError()
-		res.status(400).json(error)
-	})
-}
-
-const addToDeck = (req, res, db) => {
-	const { deck_id, entry_ids } = req.body;
-	db.select('deck_id').from('decks')
-		.where('deck_id', deck_id)
-		.then(deck => {
-			if (deck[0]) {
-				entry_ids.forEach(entry_id => {
-					return db('deck_entries')
-					.returning('*')
-					.insert({
-						deck_id,
-						entry_id,
+	const { deck_id, deck_name, user_id, is_public, is_official, tags, entry_ids, description } = req.body;
+	if (deck_id) {
+		//editing deck
+		db.select('deck_id').from('decks')
+			.where('deck_id', deck_id)
+			.then(deck => {
+				if (deck[0]) {
+					db.transaction(trx => {
+						trx('decks')
+						.returning('*')
+						.where('deck_id', deck_id)
+						.update({
+							deck_name,
+							is_public: is_official ? '1' : is_public,
+							tags,
+							description,
+						})
+						.into('decks')
+						.returning('deck_id')
+						.then(deckID => {
+							return trx.select('*').from('deck_entries')
+							.where('deck_id', deckID[0])
+							.returning('id')
+							.del()
+							.then(deckID => {
+								const deck_id = deckID[0];
+								const data = entry_ids.map(entry_id => {
+									return { deck_id, entry_id }
+								})
+								return trx('deck_entries')
+								.returning('*')
+								.insert(data)
+								.then(()=>res.json('success'))
+								.catch(()=>res.status(400).json(new EntryNotAdded()))
+							})
+						})
+						.then(trx.commit)
+						.catch(trx.rollback)
 					})
-					.catch(err=>{
+					.catch(err => {
 						console.log(err)
-						res.status(400).json(new EntryNotAdded())
+						const error = err.isCustom ? err : new ServerError()
+						res.status(400).json(error)
 					})
+				} else {
+					throw new NoDeckFound()
+				}
+			})
+			.catch(err => {
+				const error = err.isCustom ? err : new ServerError()
+				res.status(400).json(error)
+			})
+	} else {
+		//new deck
+		db.transaction(trx => {
+			trx.insert({
+				deck_name,
+				user_id: is_official ? 0 : user_id,
+				is_public: is_official ? '1' : is_public,
+				tags,
+				description,
+				date_created: new Date(),
+				users: is_official ? 100000 : 1 
+			})
+			.into('decks')
+			.returning('deck_id')
+			.then(deckID => {
+				const deck_id = deckID[0];
+				const data = entry_ids.map(entry_id => {
+					return { deck_id, entry_id }
 				})
-				res.json('success')
-			} else {
-				throw new NoDeckFound()
-			}
+				return trx('deck_entries')
+				.returning('*')
+				.insert(data)
+				.then(()=>res.json('success'))
+				.catch(()=>res.status(400).json(new EntryNotAdded()))
+			})
+			.then(trx.commit)
+			.catch(trx.rollback)
 		})
 		.catch(err => {
+			console.log(err)
 			const error = err.isCustom ? err : new ServerError()
 			res.status(400).json(error)
 		})
+	}
 }
 
 const getDeckEntries = (req, res, db) => {
