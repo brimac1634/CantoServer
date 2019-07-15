@@ -20,9 +20,10 @@ const getDecks = (req, res, db) => {
 const getDeckByID = (req, res, db) => {
 	const { deck_id } = req.body;
 	db.select('*').from('decks')
-		.innerJoin('users', 'users.id', 'decks.user_id')
+		.leftJoin('users', 'users.id', 'decks.user_id')
 		.where('decks.deck_id', deck_id)
 		.then(data => {
+			console.log(data)
 			res.json(data[0])
 		})
 		.catch(err => {
