@@ -62,6 +62,7 @@ const newDeck = (req, res, db) => {
 						.where('deck_id', deck_id)
 						.update({
 							deck_name,
+							user_id: is_official ? 0 : user_id,
 							is_public: is_official ? '1' : is_public,
 							tags,
 							description,
@@ -148,11 +149,48 @@ const getDeckEntries = (req, res, db) => {
 		.catch(() => res.status(400).json(new ServerError()))
 }
 
+const deleteDeck = (req, res, db) => {
+	const { deck_id } = req.body;
+	db.select('*').from('decks')
+		.where('deck_id', deck_id)
+		.then(deck => {
+			if (deck[0]) {
+				db.transaction(trx => {
+					return trx.select('*').from('decks')
+					.where('deck_id', deck_id)
+					.returning('deck_id')
+					.del()
+					.then(deckID => {
+						return trx.select('*').from('deck_entries')
+						.where('deck_id', deckID[0])
+						.returning('deck_id')
+						.del()
+						.then(deckID => {
+							console.log(`deck deleted: ${deckID[0]}`)
+							res.json('deck deleted')
+						})
+						.catch(() => {
+							res.status(400).json(new ServerError())
+						})
+					})
+					.then(trx.commit)
+					.catch(trx.rollback)
+				})
+			} else {
+				throw new NoDeckFound()
+			}
+		})
+		.catch(err => {
+			const error = err.isCustom ? err : new ServerError()
+			res.status(400).json(error)
+		})
+}
 
 module.exports = {
 	getDecks,
 	getDeckByID,
 	searchDecks,
 	newDeck,
-	getDeckEntries
+	getDeckEntries,
+	deleteDeck
 }
