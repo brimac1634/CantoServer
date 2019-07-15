@@ -310,27 +310,39 @@ const deleteAccount = (req, res, db) => {
 			if (data[0].email) {
 				db.transaction(trx => {
 					return trx.select('*').from('login')
-					.where('email', '=', userEmail)
+					.where('email', userEmail)
 					.returning('email')
 					.del()
 					.then(email => {
 						return trx.select('*').from('users')
-						.where('email', '=', email[0])
+						.where('email', email[0])
 						.returning('id')
 						.del()
 						.then(userID => {
 							return trx.select('*').from('favorites')
-							.where('user_id', '=', userID[0])
+							.where('user_id', userID[0])
 							.returning('user_id')
 							.del()
 							.then(() => {
 								return trx.select('*').from('recents')
-								.where('user_id', '=', userID[0])
+								.where('user_id', userID[0])
 								.returning('user_id')
 								.del()
 								.then(() => {
-									console.log(`account deleted: ${userEmail}`)
-									res.json('account deleted')
+									return trx.select('*').from('decks')
+									.where('user_id', userID[0])
+									.returning('deck_id')
+									.del()
+									.then(deckID => {
+										return trx.select('*').from('deck_entries')
+										.where('deck_id', deckID[0])
+										.returning('deck_id')
+										.del()
+										.then(() => {
+											console.log(`account deleted: ${userEmail}`)
+											res.json('account deleted')
+										})
+									})
 								})
 							})
 						})
