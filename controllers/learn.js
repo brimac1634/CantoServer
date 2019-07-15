@@ -71,7 +71,7 @@ const newDeck = (req, res, db) => {
 						.then(deckID => {
 							return trx.select('*').from('deck_entries')
 							.where('deck_id', deckID[0])
-							.returning('id')
+							.returning('deck_id')
 							.del()
 							.then(deckID => {
 								const deck_id = deckID[0];
