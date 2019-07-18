@@ -1,4 +1,10 @@
-const { ServerError, NoDeckFound, EntryNotAdded } = require('../errorCodes')
+const { 
+	ServerError, 
+	NoDeckFound, 
+	EntryNotAdded, 
+	UserNotFound,
+	ProgressNotUpdated 
+} = require('../errorCodes')
 
 const getDecks = (req, res, db) => {
 	const { userID } = req.body;
@@ -50,7 +56,9 @@ const searchDecks = (req, res, db) => {
 }
 
 const newDeck = (req, res, db) => {
-	const { deck_id, deck_name, user_id, is_public, is_official, tags, entry_ids, description } = req.body;
+	let { deck_id, deck_name, user_id, is_public, is_official, tags, entry_ids, description } = req.body;
+	deck_name = deck_name.toLowerCase();
+	tags = tags.toLowerCase();
 	if (deck_id) {
 		//editing deck
 		db.select('deck_id').from('decks')
@@ -150,6 +158,55 @@ const getDeckEntries = (req, res, db) => {
 		.catch(() => res.status(400).json(new ServerError()))
 }
 
+const updateProgress = (req, res, db) => {
+	const { user_id, entries } = req.body;
+	db.select('id').from('users')
+		.where('id', user_id)
+		.then(data => {
+			if (data[0]) {
+				return Promise.all(entries.map(entry => {
+					let { entry_id, progress } = entry;
+					return db.select('*').from('game_trackers')
+						.where('user_id', data[0].id)
+						.andWhere('entry_id', entry_id)
+						.then(tracker => {
+							if (tracker[0]) {
+								const { tracker_id } = tracker[0];
+								progress += tracker[0].progress;
+								return db.select('*').from('game_trackers')
+									.where('tracker_id', tracker_id)
+									.update({ progress })
+									.catch(()=>{
+										throw new ProgressNotUpdated()
+									})
+							} else {
+								return db('game_trackers')
+									.insert({
+										user_id,
+										entry_id,
+										progress
+									})
+									.catch(()=>{
+										throw new ProgressNotUpdated()
+									})
+							}
+						})
+						.catch(()=>{
+							throw new ProgressNotUpdated()
+						})
+				}))
+			} else {
+				throw new UserNotFound()
+			}
+		})
+		.then(() => res.json('Progress Successfully Updated'))
+		.catch(err => {
+			console.log(err)
+			const error = err.isCustom ? err : new ServerError()
+			res.status(400).json(error)
+		})
+}
+
 const deleteDeck = (req, res, db) => {
 	const { deck_id } = req.body;
 	db.select('*').from('decks')
@@ -193,5 +250,6 @@ module.exports = {
 	searchDecks,
 	newDeck,
 	getDeckEntries,
+	updateProgress,
 	deleteDeck
 }

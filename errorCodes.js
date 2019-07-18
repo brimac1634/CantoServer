@@ -26,6 +26,16 @@ class NoDeckFound extends CustomError {
   }
 }
 
+class ProgressNotUpdated extends CustomError {
+  constructor(message = 'Your learning progress could not be updated.') {
+    super(message)
+    this.name = 'ProgressNotUpdated'
+    this.title = 'Progress Failed To Update'
+    this.message = message
+    this.toJSON()
+  }
+}
+
 class ValidationError extends CustomError {
   constructor(message = 'The information you have entered does not match our records.') {
     super(message)
@@ -181,5 +191,6 @@ module.exports = {
   FacebookTokenError,
   EntryNotAdded,
   AdminOnly,
-  NoDeckFound
+  NoDeckFound,
+  ProgressNotUpdated
 }
