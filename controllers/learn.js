@@ -148,14 +148,46 @@ const newDeck = (req, res, db) => {
 }
 
 const getDeckEntries = (req, res, db) => {
-	const { deck_id } = req.body;
-	db.select('*').from('entries')
-		.innerJoin('deck_entries', 'deck_entries.entry_id', 'entries.entry_id')
-		.where('deck_entries.deck_id', deck_id)
-		.then(entries => {
-			res.json(entries)
-		})
-		.catch(() => res.status(400).json(new ServerError()))
+	const { deck_id, user_id } = req.body;
+
+	const getDeckEntriesNoUser = () => {
+		db.select('*').from('entries')
+			.innerJoin('deck_entries', 'deck_entries.entry_id', 'entries.entry_id')
+			.where('deck_entries.deck_id', deck_id)
+			.then(entries => {
+				res.json(entries)
+			})
+			.catch(() => res.status(400).json(new ServerError()))
+	}
+
+	if (user_id) {
+		db.select('*').from('users')
+			.where('id', user_id)
+			.then(data =>{
+				if (data[0]){
+					return db.select('*').from('entries')
+						.innerJoin('deck_entries', 'deck_entries.entry_id', 'entries.entry_id')
+						.fullOuterJoin('game_trackers', 'game_trackers.entry_id', 'deck_entries.entry_id')
+						.where('deck_entries.deck_id', deck_id)
+						.andWhere(function() {
+						  this.where('game_trackers.user_id', user_id).orWhere('game_trackers.user_id', null)
+						})
+						.then(entries => {
+							res.json(entries)
+						})
+						.catch(() => res.status(400).json(new ServerError()))
+				} else {
+					return getDeckEntriesNoUser()
+				}
+			})
+			.catch(err => {
+				console.log(err)
+				const error = err.isCustom ? err : new ServerError()
+				res.status(400).json(error)
+			})
+	} else {
+		getDeckEntriesNoUser()
+	}
 }
 
 const updateProgress = (req, res, db) => {
@@ -205,6 +237,11 @@ const updateProgress = (req, res, db) => {
 			const error = err.isCustom ? err : new ServerError()
 			res.status(400).json(error)
 		})
+}
+
+const getProgress = (req, res, db) => {
+	const { user_id, entryIDs } = req.body;
+	
 }
 
 const deleteDeck = (req, res, db) => {

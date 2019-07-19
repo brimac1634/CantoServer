@@ -87,6 +87,8 @@ app.post('/new-deck', middleware.checkToken, (req, res) => { learn.newDeck(req, 
 
 app.post('/deck-entries', (req, res) => { learn.getDeckEntries(req, res, db)})
 
+app.post('/deck-entries-id', middleware.checkToken, (req, res) => { learn.getDeckEntries(req, res, db)})
+
 app.post('/update-progress', middleware.checkToken, (req, res) => { learn.updateProgress(req, res, db)})
 
 app.post('/delete-deck', (req, res) => { learn.deleteDeck(req, res, db)})
