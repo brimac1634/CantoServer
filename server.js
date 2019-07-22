@@ -11,7 +11,7 @@ const { SERVERURL, URL } = require('./helpers/constants');
 setInterval(function() {
     https.get(SERVERURL);
     https.get(URL);
-}, 300000);
+}, 2000000);
 
 
 const middleware = require('./middleware');

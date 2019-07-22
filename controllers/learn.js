@@ -167,11 +167,8 @@ const getDeckEntries = (req, res, db) => {
 				if (data[0]){
 					return db.select('*').from('entries')
 						.innerJoin('deck_entries', 'deck_entries.entry_id', 'entries.entry_id')
-						.fullOuterJoin('game_trackers', 'game_trackers.entry_id', 'deck_entries.entry_id')
+						.leftOuterJoin('game_trackers', 'game_trackers.entry_id', 'deck_entries.entry_id')
 						.where('deck_entries.deck_id', deck_id)
-						.andWhere(function() {
-						  this.where('game_trackers.user_id', user_id).orWhere('game_trackers.user_id', null)
-						})
 						.then(entries => {
 							res.json(entries)
 						})
