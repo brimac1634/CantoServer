@@ -165,17 +165,27 @@ const getDeckEntries = (req, res, db) => {
 			.where('id', user_id)
 			.then(data =>{
 				if (data[0]){
-					return db.select(['entries.*', 'deck_entries.deck_id', 'game_trackers.progress', 'game_trackers.user_id']).from('entries')
-						.innerJoin('deck_entries', 'deck_entries.entry_id', 'entries.entry_id')
-						.leftJoin('game_trackers', 'game_trackers.entry_id', 'deck_entries.entry_id')
-						.where('deck_entries.deck_id', deck_id)
+					return db.select(
+							'e.*',
+							'de.deck_id',
+							db.raw('gt.progress, CASE WHEN gt.progress IS NULL THEN 0 ELSE gt.progress END'),
+							'gt.user_id'
+						)
+						.from('entries AS e')
+						.innerJoin('deck_entries AS de', 'de.entry_id', 'e.entry_id')
+						.leftJoin('game_trackers AS gt', 'gt.entry_id', 'de.entry_id')
+						.where('de.deck_id', deck_id)
 						.andWhere(function(){
-							this.where('game_trackers.user_id', user_id).orWhere('game_trackers.user_id', null)
+							this.where('gt.user_id', user_id).orWhere('gt.user_id', null)
 						})
+						.orderByRaw('CASE WHEN gt.progress > 0 THEN 0 ELSE 1 END, gt.progress DESC')
 						.then(entries => {
 							res.json(entries)
 						})
-						.catch(() => res.status(400).json(new ServerError()))
+						.catch(err => {
+							console.log(err)
+							res.status(400).json(new ServerError())
+						})
 				} else {
 					return getDeckEntriesNoUser()
 				}
@@ -237,11 +247,6 @@ const updateProgress = (req, res, db) => {
 			const error = err.isCustom ? err : new ServerError()
 			res.status(400).json(error)
 		})
-}
-
-const getProgress = (req, res, db) => {
-	const { user_id, entryIDs } = req.body;
-	
 }
 
 const deleteDeck = (req, res, db) => {
