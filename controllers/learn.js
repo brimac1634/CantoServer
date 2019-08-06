@@ -29,7 +29,6 @@ const getDeckByID = (req, res, db) => {
 		.leftJoin('users', 'users.id', 'decks.user_id')
 		.where('decks.deck_id', deck_id)
 		.then(data => {
-			console.log(data)
 			res.json(data[0])
 		})
 		.catch(err => {
