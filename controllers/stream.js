@@ -1,8 +1,15 @@
 const { AudioNotFound } = require('../errorCodes');
-const AWS = require('aws-sdk');
+const s3Key = process.env.S3_KEY;
+const s3Secret = process.env.S3_SECRET;
+const s3 = require('s3');
 
 
-const s3 = new AWS.S3();
+const client = s3.createClient({  
+  s3Options: {
+    accessKeyId: s3Key,
+    secretAccessKey: s3Secret
+  }
+});
 
 const handleStream = (req, res) => {
 	const { entryID } = req.body;
@@ -10,10 +17,10 @@ const handleStream = (req, res) => {
 	    Bucket: 'cantotalk-audio-clips',
 	    Key: `entryID_${entryID}.mp3`
 	}
-	const downloadStream = s3.downloadStream(params)
+	const downloadStream = client.downloadStream(params)
 
 	downloadStream.on('error', function() {
-	  res.status(404).send(new AudioNotFound());
+	  res.send(new AudioNotFound());
 	});
 
 	downloadStream.on('httpHeaders', function(statusCode, headers, resp) {

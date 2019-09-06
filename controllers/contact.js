@@ -22,10 +22,10 @@ const handleContact = (req, res, db, mc) => {
 						date_sent: new Date()
 					})
 					.then(message => res.json(message))
-					.catch(() => res.status(400).json(new ServerError()))
+					.catch(() => res.json(new ServerError()))
 			},
 			ifError: ()=>{
-				res.status(400).json(new EmailError())
+				res.json(new EmailError())
 			}
 		})
 	}

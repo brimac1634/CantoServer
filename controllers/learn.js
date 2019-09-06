@@ -19,7 +19,7 @@ const getDecks = (req, res, db) => {
 		})
 		.catch(err => {
 			console.log(err)
-			res.status(400).json(new ServerError())
+			res.json(new ServerError())
 		})
 }
 
@@ -33,7 +33,7 @@ const getDeckByID = (req, res, db) => {
 		})
 		.catch(err => {
 			console.log(err)
-			res.status(400).json(new ServerError())
+			res.json(new ServerError())
 		})
 }
 
@@ -51,7 +51,7 @@ const searchDecks = (req, res, db) => {
 		.then(data => {
 			res.json(data)
 		})
-		.catch(() => res.status(400).json(new ServerError()))
+		.catch(() => res.json(new ServerError()))
 }
 
 const newDeck = (req, res, db) => {
@@ -91,7 +91,7 @@ const newDeck = (req, res, db) => {
 								.returning('*')
 								.insert(data)
 								.then(()=>res.json('success'))
-								.catch(()=>res.status(400).json(new EntryNotAdded()))
+								.catch(()=>res.json(new EntryNotAdded()))
 							})
 						})
 						.then(trx.commit)
@@ -100,7 +100,7 @@ const newDeck = (req, res, db) => {
 					.catch(err => {
 						console.log(err)
 						const error = err.isCustom ? err : new ServerError()
-						res.status(400).json(error)
+						res.json(error)
 					})
 				} else {
 					throw new NoDeckFound()
@@ -108,7 +108,7 @@ const newDeck = (req, res, db) => {
 			})
 			.catch(err => {
 				const error = err.isCustom ? err : new ServerError()
-				res.status(400).json(error)
+				res.json(error)
 			})
 	} else {
 		//new deck
@@ -133,7 +133,7 @@ const newDeck = (req, res, db) => {
 				.returning('*')
 				.insert(data)
 				.then(()=>res.json('success'))
-				.catch(()=>res.status(400).json(new EntryNotAdded()))
+				.catch(()=>res.json(new EntryNotAdded()))
 			})
 			.then(trx.commit)
 			.catch(trx.rollback)
@@ -141,7 +141,7 @@ const newDeck = (req, res, db) => {
 		.catch(err => {
 			console.log(err)
 			const error = err.isCustom ? err : new ServerError()
-			res.status(400).json(error)
+			res.json(error)
 		})
 	}
 }
@@ -156,7 +156,7 @@ const getDeckEntries = (req, res, db) => {
 			.then(entries => {
 				res.json(entries)
 			})
-			.catch(() => res.status(400).json(new ServerError()))
+			.catch(() => res.json(new ServerError()))
 	}
 
 	if (user_id) {
@@ -183,7 +183,7 @@ const getDeckEntries = (req, res, db) => {
 						})
 						.catch(err => {
 							console.log(err)
-							res.status(400).json(new ServerError())
+							res.json(new ServerError())
 						})
 				} else {
 					return getDeckEntriesNoUser()
@@ -192,7 +192,7 @@ const getDeckEntries = (req, res, db) => {
 			.catch(err => {
 				console.log(err)
 				const error = err.isCustom ? err : new ServerError()
-				res.status(400).json(error)
+				res.json(error)
 			})
 	} else {
 		getDeckEntriesNoUser()
@@ -244,7 +244,7 @@ const updateProgress = (req, res, db) => {
 		.catch(err => {
 			console.log(err)
 			const error = err.isCustom ? err : new ServerError()
-			res.status(400).json(error)
+			res.json(error)
 		})
 }
 
@@ -269,7 +269,7 @@ const deleteDeck = (req, res, db) => {
 							res.json('deck deleted')
 						})
 						.catch(() => {
-							res.status(400).json(new ServerError())
+							res.json(new ServerError())
 						})
 					})
 					.then(trx.commit)
@@ -281,7 +281,7 @@ const deleteDeck = (req, res, db) => {
 		})
 		.catch(err => {
 			const error = err.isCustom ? err : new ServerError()
-			res.status(400).json(error)
+			res.json(error)
 		})
 }
 

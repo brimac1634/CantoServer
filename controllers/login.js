@@ -32,7 +32,7 @@ const sendVerificationEmail = (user, res) => {
 			res.json(user.email)
 		},
 		ifError: ()=>{
-			res.status(400).json(new EmailError())
+			res.json(new EmailError())
 		}
 	})
 }
@@ -78,7 +78,7 @@ const handleSignIn = (req, res, db, bcrypt) => {
 	const emailIsValid = validateEmail(email);
 	const passwordIsValid = validatePassword(password);
 	if (!emailIsValid || !passwordIsValid) {
-		return res.status(400).json(new ValidationError())
+		return res.json(new ValidationError())
 	}
 	db.select('email', 'hash').from('login')
 		.where('email', '=', email)
@@ -97,7 +97,7 @@ const handleSignIn = (req, res, db, bcrypt) => {
 							})
 							.catch(err => {
 								console.log(err)
-								res.status(400).json(new ServerError())
+								res.json(new ServerError())
 							})
 					} else {
 						throw new ValidationError()
@@ -109,7 +109,8 @@ const handleSignIn = (req, res, db, bcrypt) => {
 		})
 		.catch(err => {
 			const error = err.isCustom ? err : new ServerError()
-			res.status(400).json(error)
+			console.log('over here', error)
+			res.json(error)
 		})
 }
 
@@ -120,7 +121,7 @@ const handleRegister = (req, res, db, mc) => {
 	email = email.toLowerCase()
 	const emailIsValid = validateEmail(email);
 	if (!emailIsValid) {
-		return res.status(400).json(new ValidationError())
+		return res.json(new ValidationError())
 	}
 
 	db.select('email').from('login')
@@ -140,7 +141,7 @@ const handleRegister = (req, res, db, mc) => {
 						sendVerificationEmail(user, res)
 					})
 					.catch(err => {
-						res.status(400).json(new ServerError())
+						res.json(new ServerError())
 					})
 			} else {
 				if (name != null) {
@@ -166,7 +167,7 @@ const handleRegister = (req, res, db, mc) => {
 								sendVerificationEmail(user, res)
 							})
 							.catch(() => {
-								res.status(400).json(new ServerError())
+								res.json(new ServerError())
 							})
 						})
 						.then(trx.commit)
@@ -179,7 +180,7 @@ const handleRegister = (req, res, db, mc) => {
 		})
 		.catch(err => {
 			const error = err.isCustom ? err : new ServerError()
-			res.status(400).json(error)
+			res.json(error)
 		})
 }
 
@@ -187,7 +188,7 @@ const completeRegistration = (req, res, db, bcrypt) => {
 	const { password, token } = req.body;
 	const passwordIsValid = validatePassword(password);
 	if (!passwordIsValid) {
-		return res.status(400).json(new ValidationError())
+		return res.json(new ValidationError())
 	}
 	const now = new Date();
 	db.select('*').from('users')
@@ -216,7 +217,7 @@ const completeRegistration = (req, res, db, bcrypt) => {
 								generateAuthToken(res, user)
 							})
 							.catch(() => {
-								res.status(400).json(new ServerError())
+								res.json(new ServerError())
 							})
 						})
 						.then(trx.commit)
@@ -229,7 +230,7 @@ const completeRegistration = (req, res, db, bcrypt) => {
 		})
 		.catch(err => {
 			const error = err.isCustom ? err : new ServerError()
-			res.status(400).json(error)
+			res.json(error)
 		})
 }
 
@@ -247,13 +248,13 @@ const handleFB = (req, res, db, bcrypt) => {
 	        if (fbData.id === id) {
 	        	checkFBUser(res, db, bcrypt, email, name)
 	        } else {
-	        	res.status(400).json(new FacebookTokenError())
+	        	res.json(new FacebookTokenError())
 	        }
 	    });
 
 	}).on("error", (err) => {
 	    console.log("Error: " + err.message);
-	    res.status(400).json(new ServerError())
+	    res.json(new ServerError())
 	});
 }
 
@@ -289,7 +290,7 @@ const checkFBUser = (res, db, bcrypt, email, name) => {
 							addUserToMailList(user.email)
 							generateAuthToken(res, user)
 						})
-						.catch(() => res.status(400).json(new ServerError()))
+						.catch(() => res.json(new ServerError()))
 					})
 					.then(trx.commit)
 					.catch(trx.rollback)
@@ -298,7 +299,7 @@ const checkFBUser = (res, db, bcrypt, email, name) => {
 		})
 		.catch(err => {
 			const error = err.isCustom ? err : new ServerError()
-			res.status(400).json(error)
+			res.json(error)
 		})
 }
 
@@ -347,7 +348,7 @@ const deleteAccount = (req, res, db) => {
 							})
 						})
 						.catch(() => {
-							res.status(400).json(new ServerError())
+							res.json(new ServerError())
 						})
 					})
 					.then(trx.commit)
@@ -359,7 +360,7 @@ const deleteAccount = (req, res, db) => {
 		})
 		.catch(err => {
 			const error = err.isCustom ? err : new ServerError()
-			res.status(400).json(error)
+			res.json(error)
 		})
 }
 
@@ -377,7 +378,7 @@ const checkUser = (req, res, db) => {
 		})
 		.catch(err => {
 			const error = err.isCustom ? err : new ServerError()
-			res.status(400).json(error)
+			res.json(error)
 		})
 
 	

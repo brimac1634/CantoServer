@@ -31,11 +31,11 @@ const addEntry = (req, res, db) => {
 					    english_sentence 
 					})
 					.then(entry => res.json(entry[0]))
-					.catch(()=>res.status(400).json(new EntryNotAdded()))
+					.catch(()=>res.json(new EntryNotAdded()))
 			})
-			.catch(()=>res.status(400).json(new ServerError()))
+			.catch(()=>res.json(new ServerError()))
 	} else {
-		res.status(400).json(new AdminOnly())
+		res.json(new AdminOnly())
 	}
 }
 

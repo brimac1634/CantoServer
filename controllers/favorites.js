@@ -13,7 +13,7 @@ const toggleFavorite = (req, res, db) => {
 				.andWhere('entry_id', '=', entryID)
 				.del()
 				.then(data => res.json(false))
-				.catch(() => res.status(400).json(new ServerError()))
+				.catch(() => res.json(new ServerError()))
 			} else {
 				return db('favorites')
 				.returning('*')
@@ -24,10 +24,10 @@ const toggleFavorite = (req, res, db) => {
 					date_favorited: new Date()
 				})
 				.then(favorite => res.json(true))
-				.catch(() => res.status(400).json(new ServerError()))
+				.catch(() => res.json(new ServerError()))
 			}
 		})
-		.catch(() => res.status(400).json(new ServerError()))
+		.catch(() => res.json(new ServerError()))
 }
 
 const checkIfFavorited = (req, res, db) => {
@@ -42,7 +42,7 @@ const checkIfFavorited = (req, res, db) => {
 				res.json(false)
 			}
 		})
-		.catch(() => res.status(400).json(new ServerError()))
+		.catch(() => res.json(new ServerError()))
 }
 
 const getFavorites = (req, res, db) => {
@@ -54,7 +54,7 @@ const getFavorites = (req, res, db) => {
 		.then(entries => {
 			res.json(entries)
 		})
-		.catch(() => res.status(400).json(new ServerError()))
+		.catch(() => res.json(new ServerError()))
 }
 
 module.exports = {

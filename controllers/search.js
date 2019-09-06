@@ -13,7 +13,7 @@ const handleSearch = (req, res, db) => {
 			.then(entries => {
 				res.json(entries)
 			})
-			.catch(err => res.status(400).json(new ServerError()))
+			.catch(err => res.json(new ServerError()))
 	}
 
 	switch (searchType) {
@@ -47,7 +47,7 @@ const handleSearch = (req, res, db) => {
 				.then(entries => {
 					res.json(entries)
 				})
-				.catch(err => res.status(400).json(new ServerError()))
+				.catch(err => res.json(new ServerError()))
 	}
 }
 
@@ -58,7 +58,7 @@ const handleEntryID = (req, res, db) => {
 		.then(entry => {
 			res.json(entry[0])
 		})
-		.catch(err => res.status(400).json(new ServerError()))
+		.catch(err => res.json(new ServerError()))
 }
 
 const addRecent = (req, res, db) => {
@@ -76,7 +76,7 @@ const addRecent = (req, res, db) => {
 					date_viewed: new Date()
 				})
 				.then(recent => res.json(recent[0]))
-				.catch(err => res.status(400).json(new ServerError()))
+				.catch(err => res.json(new ServerError()))
 			} else {
 				return db('recents')
 				.returning('*')
@@ -86,10 +86,10 @@ const addRecent = (req, res, db) => {
 					date_viewed: new Date()
 				})
 				.then(recent => res.json(recent[0]))
-				.catch(err => res.status(400).json(new ServerError()))
+				.catch(err => res.json(new ServerError()))
 			}
 		})
-		.catch(err => res.status(400).json(new ServerError()))
+		.catch(err => res.json(new ServerError()))
 }
 
 const getRecent = (req, res, db) => {
@@ -101,7 +101,7 @@ const getRecent = (req, res, db) => {
 		.then(entries => {
 			res.json(entries);
 		})
-		.catch(err => res.status(400).json(new ServerError()))
+		.catch(err => res.json(new ServerError()))
 
 }
 

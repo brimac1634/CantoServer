@@ -8,7 +8,7 @@ const getWordOfDay = (res, db) => {
 		})
 		.catch(err => {
 			const error = err.isCustom ? err : new ServerError()
-			res.status(400).json(error)
+			res.json(error)
 		})
 }
 

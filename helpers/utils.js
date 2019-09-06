@@ -6,7 +6,15 @@ const mailList = mailgun.lists(`mail-list@${DOMAIN}`)
 const { generateHTML } = require('./HTMLGenerator');
 
 const configureDB = () => {
-  if (process.env.PORT == 3000) {
+  if (process.env.NODE_ENV == 'production') {
+    return knex({
+      client: 'pg',
+      connection: {
+        connectionString: process.env.DATABASE_URL,
+        ssl: true,
+      }
+    });
+  } else {
     return knex({
       client: 'pg',
       connection: {
@@ -14,14 +22,6 @@ const configureDB = () => {
         user : 'brianmacpherson',
         password : '',
         database : 'cantotalk'
-      }
-    });
-  } else {
-    return knex({
-      client: 'pg',
-      connection: {
-        connectionString: process.env.DATABASE_URL,
-        ssl: true,
       }
     });
   }
