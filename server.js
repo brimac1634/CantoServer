@@ -7,11 +7,11 @@ const https = require('https');
 const schedule = require('node-schedule');
 require('dotenv').config();
 
-const { SERVERURL, URL } = require('./helpers/constants');
-setInterval(function() {
-    https.get(SERVERURL);
-    https.get(URL);
-}, 1000000);
+// const { SERVERURL, URL } = require('./helpers/constants');
+// setInterval(function() {
+//     https.get(SERVERURL);
+//     https.get(URL);
+// }, 1000000);
 
 
 const middleware = require('./middleware');

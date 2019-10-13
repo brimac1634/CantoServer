@@ -116,7 +116,7 @@ const handleSignIn = (req, res, db, bcrypt) => {
 
 
 
-const handleRegister = (req, res, db, mc) => {
+const handleRegister = (req, res, db) => {
 	let { name, email } = req.body;
 	email = email.toLowerCase()
 	const emailIsValid = validateEmail(email);
