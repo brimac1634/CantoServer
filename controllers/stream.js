@@ -1,15 +1,7 @@
 const { AudioNotFound } = require('../errorCodes');
-const s3Key = process.env.S3_KEY;
-const s3Secret = process.env.S3_SECRET;
-const s3 = require('s3');
+const AWS = require('aws-sdk');
 
-
-const client = s3.createClient({  
-  s3Options: {
-    accessKeyId: s3Key,
-    secretAccessKey: s3Secret
-  }
-});
+const client = new AWS.S3();
 
 const handleStream = (req, res) => {
 	const { entryID } = req.body;
